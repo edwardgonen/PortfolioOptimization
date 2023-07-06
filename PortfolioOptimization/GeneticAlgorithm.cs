@@ -1,140 +1,185 @@
 namespace PortfolioOptimization;
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 
-public class GeneticAlgorithm<T>
+class GeneticAlgorithm
 {
-    private readonly int populationSize;
-    private readonly T[] range;
-    private readonly Func<T[], double> fitnessFunction;
-    private readonly int maxGenerations;
-    private readonly Random random;
+    private readonly Random _random;
+    private readonly int _populationSize;
+    private readonly int _chromosomeLength;
+    private readonly int _maxGenerations;
+    private readonly int _minValue;
+    private readonly int _maxValue;
 
-    public GeneticAlgorithm(int populationSize, T[] range, Func<T[], double> fitnessFunction, int maxGenerations)
+    public GeneticAlgorithm(int populationSize, int chromosomeLength, int maxGenerations, int minValue, int maxValue)
     {
-        this.populationSize = populationSize;
-        this.range = range;
-        this.fitnessFunction = fitnessFunction;
-        this.maxGenerations = maxGenerations;
-        random = new Random();
+        _random = new Random();
+        this._populationSize = populationSize;
+        this._chromosomeLength = chromosomeLength;
+        this._maxGenerations = maxGenerations;
+        this._minValue = minValue;
+        this._maxValue = maxValue;
     }
 
-    public T[]? OptimizeArray()
+    public int[] Optimize()
     {
-        T[][] population = GenerateInitialPopulation();
+        List<int[]> population = GenerateInitialPopulation();
 
-        for (int generation = 0; generation < maxGenerations; generation++)
+        for (int generation = 1; generation <= _maxGenerations; generation++)
         {
-            T[][] nextGeneration = new T[populationSize][];
+            List<double> fitnessValues = EvaluatePopulationFitness(population);
+            List<int[]> parents = SelectParents(population, fitnessValues);
+            List<int[]> offspring = CreateOffspring(parents);
+            population = offspring;
 
-            for (int i = 0; i < populationSize; i++)
-            {
-                T[] parent1 = SelectParent(population);
-                T[] parent2 = SelectParent(population);
-
-                T[] child = Crossover(parent1, parent2);
-                Mutate(child);
-
-                nextGeneration[i] = child;
-            }
-
-            population = nextGeneration;
-
-            T[]? fittestIndividual = GetFittestIndividual(population);
-            if (fitnessFunction(fittestIndividual) == 1.0)
-            {
-                return fittestIndividual;
-            }
+            double bestFitness = fitnessValues.Max();
+            Console.WriteLine($"Generation {generation}: Best Fitness = {bestFitness}");
         }
 
-        return GetFittestIndividual(population);
+        int[] finalChromosome = population[0];
+        Console.WriteLine("Final Solution:");
+        Console.WriteLine(string.Join(", ", finalChromosome));
+
+        return finalChromosome;
     }
 
-    private T[][] GenerateInitialPopulation()
+    private List<int[]> GenerateInitialPopulation()
     {
-        T[][] population = new T[populationSize][];
+        List<int[]> population = new List<int[]>();
 
-        for (int i = 0; i < populationSize; i++)
+        for (int i = 0; i < _populationSize; i++)
         {
-            T[] individual = new T[range.Length];
-
-            for (int j = 0; j < range.Length; j++)
+            int[] chromosome = new int[_chromosomeLength];
+            for (int j = 0; j < _chromosomeLength; j++)
             {
-                individual[j] = GenerateRandomGene();
+                chromosome[j] = _random.Next(_minValue, _maxValue + 1);
             }
-
-            population[i] = individual;
+            population.Add(chromosome);
         }
 
         return population;
     }
 
-    private T GenerateRandomGene()
+    private List<double> EvaluatePopulationFitness(List<int[]> population)
     {
-        int index = random.Next(range.Length);
-        return range[index];
-    }
+        List<double> fitnessValues = new List<double>();
 
-    private T[] SelectParent(T[][] population)
-    {
-        int index1 = random.Next(populationSize);
-        int index2 = random.Next(populationSize);
-
-        return fitnessFunction(population[index1]) > fitnessFunction(population[index2])
-            ? population[index1]
-            : population[index2];
-    }
-
-    private T[] Crossover(T[] parent1, T[] parent2)
-    {
-        T[] child = new T[parent1.Length];
-
-        int crossoverPoint = random.Next(parent1.Length);
-
-        for (int i = 0; i < parent1.Length; i++)
+        foreach (int[] chromosome in population)
         {
-            child[i] = i < crossoverPoint ? parent1[i] : parent2[i];
+            double fitness = CalculateFitness(chromosome);
+            fitnessValues.Add(fitness);
+        }
+
+        return fitnessValues;
+    }
+
+    private double CalculateFitness(int[] chromosome)
+    {
+        // Your fitness calculation logic goes here
+        // You'll need to define a fitness function based on your specific problem
+        // The fitness function should evaluate how well a chromosome solves the problem
+
+        // For illustration purposes, let's assume a simple fitness function that sums all the integers
+        double sum = chromosome.Sum();
+        return sum;
+    }
+
+    private List<int[]> SelectParents(List<int[]> population, List<double> fitnessValues)
+    {
+        // Your parent selection logic goes here
+        // You'll need to implement a selection method such as roulette wheel selection, tournament selection, etc.
+        // The selection method should choose chromosomes from the population based on their fitness values
+
+        // For illustration purposes, let's assume a simple roulette wheel selection
+        double totalFitness = fitnessValues.Sum();
+        List<int[]> parents = new List<int[]>();
+
+        for (int i = 0; i < _populationSize; i++)
+        {
+            double randomFitness = _random.NextDouble() * totalFitness;
+            double cumulativeFitness = 0;
+
+            for (int j = 0; j < _populationSize; j++)
+            {
+                cumulativeFitness += fitnessValues[j];
+
+                if (cumulativeFitness >= randomFitness)
+                {
+                    parents.Add(population[j]);
+                    break;
+                }
+            }
+        }
+
+        return parents;
+    }
+
+    private List<int[]> CreateOffspring(List<int[]> parents)
+    {
+        List<int[]> offspring = new List<int[]>();
+
+        while (offspring.Count < _populationSize)
+        {
+            int[] parent1 = parents[_random.Next(parents.Count)];
+            int[] parent2 = parents[_random.Next(parents.Count)];
+            int[] child = Crossover(parent1, parent2);
+            Mutate(child);
+            offspring.Add(child);
+        }
+
+        return offspring;
+    }
+
+    private int[] Crossover(int[] parent1, int[] parent2)
+    {
+        int[] child = new int[_chromosomeLength];
+
+        int crossoverPoint = _random.Next(1, _chromosomeLength - 1);
+
+        for (int i = 0; i < crossoverPoint; i++)
+        {
+            child[i] = parent1[i];
+        }
+
+        for (int i = crossoverPoint; i < _chromosomeLength; i++)
+        {
+            child[i] = parent2[i];
         }
 
         return child;
     }
 
-    private void Mutate(T[] individual)
+    private void Mutate(int[] chromosome)
     {
-        int index = random.Next(individual.Length);
-        individual[index] = GenerateRandomGene();
-    }
+        double mutationRate = 0.01;
 
-    private T[]? GetFittestIndividual(T[][] population)
-    {
-        return population.MaxBy(fitnessFunction);
+        for (int i = 0; i < _chromosomeLength; i++)
+        {
+            if (_random.NextDouble() < mutationRate)
+            {
+                chromosome[i] = _random.Next(_minValue, _maxValue + 1);
+            }
+        }
     }
 }
+
 /*
-public class Program
+class Program
 {
-    public static void Main(string[] args)
+    static void Main()
     {
-        int populationSize = 50;
-        int[] range = Enumerable.Range(1, 30).ToArray();
-        Func<int[], double> fitnessFunction = FitnessFunction;
-        int maxGenerations = 1000;
+        int populationSize = 100;
+        int chromosomeLength = 47;
+        int maxGenerations = 100;
+        int minValue = 3;
+        int maxValue = 33;
 
-        GeneticAlgorithm<int> ga = new GeneticAlgorithm<int>(populationSize, range, fitnessFunction, maxGenerations);
-        int[] optimizedArray= ga.OptimizeArray();
+        GeneticAlgorithm geneticAlgorithm = new GeneticAlgorithm(populationSize, chromosomeLength, maxGenerations, minValue, maxValue);
+        int[] solution = geneticAlgorithm.Optimize();
 
-        Console.WriteLine("Optimized Array:");
-        Console.WriteLine(string.Join(", ", optimizedArray));
-    }
-
-    private static double FitnessFunction(int[] individual)
-    {
-        // Custom fitness function implementation
-        // Example: maximize the sum of the array elements
-
-        double sum = individual.Sum();
-        return sum / (individual.Length * 30); // Normalize fitness between 0 and 1
+        // Use the solution as needed
     }
 }
 */
