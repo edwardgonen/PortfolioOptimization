@@ -49,7 +49,7 @@ public class Permutations
         if (index >= array.Length)
         {
             //SaveArray(array);
-            var tmpSharpe = _optimizerContractsToSharpe.CalculateSharpeForOnePermutation(array);
+            var tmpSharpe = Sharpe.CalculateSharpeForOnePermutation(array, _dataHolder);
             if ( tmpSharpe > BestSharpe)
             {
                 BestSharpe = tmpSharpe;
@@ -81,14 +81,42 @@ public static class Sharpe
     // }
 
     private static readonly decimal RiskFreeRate = new(15.8745078664);
-    
+
+    public static decimal CalculateSharpeForOnePermutation(int[] array, DataHolder initialDataHolder)
+    {
+        decimal sharpe = -1;
+
+        decimal[] totalDailyPnLs = new decimal[initialDataHolder.InitialData.Count];
+
+        int j = 0;
+        foreach (var row in initialDataHolder.InitialData)
+        {
+            totalDailyPnLs[j] = 0;
+            for (var i = 0; i < array.Length; i++)
+            {
+                totalDailyPnLs[j] += initialDataHolder.InitialData[j].DailyAccumulatedPnlByStrategy[i] * array[i];
+            }
+
+            j++;
+        }
+
+        sharpe = Sharpe.CalculateSharpeRatio(totalDailyPnLs);
+
+        //let's multiply by array all strategies PnLs
+        return sharpe;
+    }
+
     public static decimal CalculateSharpeRatio(decimal[] returns)
     {
         decimal averageReturn = CalculateAverage(returns);
         decimal standardDeviation = CalculateStandardDeviation(returns);
-        decimal excessReturn = averageReturn - RiskFreeRate;
+        //decimal excessReturn = averageReturn - RiskFreeRate;
 
-        return excessReturn / standardDeviation;
+
+        return averageReturn / standardDeviation * RiskFreeRate;
+        
+        
+        //return excessReturn / standardDeviation;
     }
 
     private static decimal CalculateAverage(decimal[] returns)
