@@ -1,0 +1,15 @@
+/Users/edgonen/Projects/PortfolioOptimization/PortfolioOptimization/bin/Debug/net7.0/PortfolioOptimization
+/Users/edgonen/Projects/PortfolioOptimization/PortfolioOptimization/bin/Debug/net7.0/PortfolioOptimization.deps.json
+/Users/edgonen/Projects/PortfolioOptimization/PortfolioOptimization/bin/Debug/net7.0/PortfolioOptimization.runtimeconfig.json
+/Users/edgonen/Projects/PortfolioOptimization/PortfolioOptimization/bin/Debug/net7.0/PortfolioOptimization.dll
+/Users/edgonen/Projects/PortfolioOptimization/PortfolioOptimization/bin/Debug/net7.0/PortfolioOptimization.pdb
+/Users/edgonen/Projects/PortfolioOptimization/PortfolioOptimization/obj/Debug/net7.0/PortfolioOptimization.csproj.AssemblyReference.cache
+/Users/edgonen/Projects/PortfolioOptimization/PortfolioOptimization/obj/Debug/net7.0/PortfolioOptimization.GeneratedMSBuildEditorConfig.editorconfig
+/Users/edgonen/Projects/PortfolioOptimization/PortfolioOptimization/obj/Debug/net7.0/PortfolioOptimization.AssemblyInfoInputs.cache
+/Users/edgonen/Projects/PortfolioOptimization/PortfolioOptimization/obj/Debug/net7.0/PortfolioOptimization.AssemblyInfo.cs
+/Users/edgonen/Projects/PortfolioOptimization/PortfolioOptimization/obj/Debug/net7.0/PortfolioOptimization.csproj.CoreCompileInputs.cache
+/Users/edgonen/Projects/PortfolioOptimization/PortfolioOptimization/obj/Debug/net7.0/PortfolioOptimization.dll
+/Users/edgonen/Projects/PortfolioOptimization/PortfolioOptimization/obj/Debug/net7.0/refint/PortfolioOptimization.dll
+/Users/edgonen/Projects/PortfolioOptimization/PortfolioOptimization/obj/Debug/net7.0/PortfolioOptimization.pdb
+/Users/edgonen/Projects/PortfolioOptimization/PortfolioOptimization/obj/Debug/net7.0/PortfolioOptimization.genruntimeconfig.cache
+/Users/edgonen/Projects/PortfolioOptimization/PortfolioOptimization/obj/Debug/net7.0/ref/PortfolioOptimization.dll
