@@ -12,22 +12,22 @@ public class GeneticSharpAlgorithm
         //var chromosome = new IntegerChromosome(minValue, maxValue);
         
         //for floating point chromosome
-        double[] mins = new double[numberOfStrategies];
-        double[] maxs = new double[numberOfStrategies];
+        double[] minimums = new double[numberOfStrategies];
+        double[] maximums = new double[numberOfStrategies];
         int[] digits = new int[numberOfStrategies];
         int[] fractions = new int[numberOfStrategies];
 
         for (var i = 0; i < numberOfStrategies; i++)
         {
-            mins[i] = minValue;
-            maxs[i] = maxValue;
+            minimums[i] = minValue;
+            maximums[i] = maxValue;
             digits[i] = 5;
             fractions[i] = 0;
         }
         
         var chromosome = new FloatingPointChromosome(
-            mins,
-            maxs,
+            minimums,
+            maximums,
             digits,
             fractions);
         

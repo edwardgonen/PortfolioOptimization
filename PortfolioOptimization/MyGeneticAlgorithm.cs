@@ -6,6 +6,8 @@ using System.Linq;
 
 class MyGeneticAlgorithm
 {
+    public decimal BestFitness;
+    
     private readonly Random _random;
     private readonly int _populationSize;
     private readonly int _chromosomeLength;
@@ -27,6 +29,7 @@ class MyGeneticAlgorithm
 
     public int[] Optimize()
     {
+        decimal bestFitness = 0;
         List<int[]> population = GenerateInitialPopulation();
 
         for (int generation = 1; generation <= _maxGenerations; generation++)
@@ -35,14 +38,13 @@ class MyGeneticAlgorithm
             List<int[]> parents = SelectParents(population, fitnessValues);
             List<int[]> offspring = CreateOffspring(parents);
             population = offspring;
+            bestFitness = fitnessValues.Max();
 
-            decimal bestFitness = fitnessValues.Max();
             //Logger.Log($"Generation {generation}: Best Fitness = {bestFitness}");
         }
 
+        BestFitness = bestFitness;
         int[] finalChromosome = population[0];
-        Logger.Log("Final Solution:");
-        Logger.Log(string.Join(", ", finalChromosome));
 
         return finalChromosome;
     }

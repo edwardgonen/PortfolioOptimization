@@ -3,7 +3,7 @@
 using PortfolioOptimization;
 
 int rangeStart = 0;
-int rangeEnd = 20;
+int rangeEnd = 30;
 //int step = 14;
 DateTime startDate = new DateTime(2019, 1, 1);
 DateTime endDate = new DateTime(2019, 12, 31);
@@ -15,7 +15,7 @@ var strategyList = dataHolder.StrategyList;
 
 Logger.Log("Loaded " + strategyList.Count + " strategies");
 
-
+Logger.Log("Optimize using GeneticSharp");
 GeneticSharpAlgorithm gsa = new GeneticSharpAlgorithm(strategyList.Count, dataHolder, rangeStart, rangeEnd);
 gsa.Start();
 
@@ -26,7 +26,7 @@ Logger.Log("Final Solution:");
 Logger.Log(string.Join(", ", bestChromosome));
 Logger.Log("Best sharpe is " + bestFitness);
 
-/*
+Logger.Log("Optimize using my Genetic");
 int populationSize = 100;
 int chromosomeLength = strategyList.Count;
 int maxGenerations = 100;
@@ -37,7 +37,9 @@ MyGeneticAlgorithm myGeneticAlgorithm = new MyGeneticAlgorithm(populationSize, c
     dataHolder
     );
 int[] solution = myGeneticAlgorithm.Optimize();
-*/
+Logger.Log("Final Solution:");
+Logger.Log(string.Join(", ", solution));
+Logger.Log("Best sharpe is " + myGeneticAlgorithm.BestFitness);
 /*
 Logger.Log("Calculating permutations started at " + DateTime.Now);
 var permutations = new Permutations(optimizer, dataHolder);
