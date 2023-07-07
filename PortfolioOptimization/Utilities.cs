@@ -110,13 +110,10 @@ public static class Sharpe
     {
         decimal averageReturn = CalculateAverage(returns);
         decimal standardDeviation = CalculateStandardDeviation(returns);
-        //decimal excessReturn = averageReturn - RiskFreeRate;
 
-
+        if (standardDeviation == 0) return 0;
         return averageReturn / standardDeviation * RiskFreeRate;
         
-        
-        //return excessReturn / standardDeviation;
     }
 
     private static decimal CalculateAverage(decimal[] returns)

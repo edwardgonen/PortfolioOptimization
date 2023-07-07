@@ -1,8 +1,10 @@
 {
   "version": 2,
-  "dgSpecHash": "Hlfjx5528tPevyY9I8z08nGJScInMr3k0lWbQEOohxxlwlOngjl6wZ5iA6Ank8ZPUQm1WQQMDuz2Vk0xLMZY5Q==",
+  "dgSpecHash": "yl4YWLyVf7e3udZS+eQhtEIvOaCRmVHBoKFIwemmKPkGQrToS+DuW/2yA2NK/OrUpvnk4l/A51S9QXTrd8mMRQ==",
   "success": true,
   "projectFilePath": "/Users/edgonen/Projects/PortfolioOptimization/PortfolioOptimization/PortfolioOptimization.csproj",
-  "expectedPackageFiles": [],
+  "expectedPackageFiles": [
+    "/Users/edgonen/.nuget/packages/geneticsharp/3.1.4/geneticsharp.3.1.4.nupkg.sha512"
+  ],
   "logs": []
 }

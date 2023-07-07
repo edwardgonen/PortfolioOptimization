@@ -4,7 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-class GeneticAlgorithm
+class MyGeneticAlgorithm
 {
     private readonly Random _random;
     private readonly int _populationSize;
@@ -14,7 +14,7 @@ class GeneticAlgorithm
     private readonly int _maxValue;
     private readonly DataHolder _initialDataHolder;
 
-    public GeneticAlgorithm(int populationSize, int chromosomeLength, int maxGenerations, int minValue, int maxValue, DataHolder initialDataHolder)
+    public MyGeneticAlgorithm(int populationSize, int chromosomeLength, int maxGenerations, int minValue, int maxValue, DataHolder initialDataHolder)
     {
         _random = new Random();
         this._populationSize = populationSize;

@@ -13,3 +13,6 @@
 /Users/edgonen/Projects/PortfolioOptimization/PortfolioOptimization/obj/Debug/net7.0/PortfolioOptimization.pdb
 /Users/edgonen/Projects/PortfolioOptimization/PortfolioOptimization/obj/Debug/net7.0/PortfolioOptimization.genruntimeconfig.cache
 /Users/edgonen/Projects/PortfolioOptimization/PortfolioOptimization/obj/Debug/net7.0/ref/PortfolioOptimization.dll
+/Users/edgonen/Projects/PortfolioOptimization/PortfolioOptimization/bin/Debug/net7.0/GeneticSharp.Domain.dll
+/Users/edgonen/Projects/PortfolioOptimization/PortfolioOptimization/bin/Debug/net7.0/GeneticSharp.Infrastructure.Framework.dll
+/Users/edgonen/Projects/PortfolioOptimization/PortfolioOptimization/obj/Debug/net7.0/PortfolioOptimization.csproj.CopyComplete
