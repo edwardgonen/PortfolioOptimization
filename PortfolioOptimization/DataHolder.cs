@@ -2,10 +2,13 @@ namespace PortfolioOptimization;
 
 public class DataHolder
 {
-    public List<Row> InitialData { get; } = new();
+    public List<Row> InitialData { get; private set; } = new();
     public List<string> StrategyList { get; } = new();
 
-    public DataHolder(string inputFileName, DateTime startDate, DateTime endDate)
+    public DataHolder()
+    {
+    }
+    public DataHolder(string inputFileName)
     {
         //0. read the input file
         var readText = File.ReadAllLines(inputFileName);
@@ -33,10 +36,7 @@ public class DataHolder
                 //wrong format
                 throw new MyException("Wrong date format " + lineParts[0] + " at line " + i);
             }
-
-            if (date.Date < startDate || date.Date >= endDate) continue;
-
-
+            
 
             var listOfAccumulatedPnl = new decimal[lineParts.Length - 1];
             for (var j = 1; j < lineParts.Length; j++)
@@ -55,6 +55,15 @@ public class DataHolder
             InitialData.Add(row);
         }
 
+    }
+
+    public DataHolder GetRangeOfData(DateTime startDate, DateTime endDate)
+    {
+        DataHolder result = new DataHolder();
+        if (InitialData.Count <= 0) return result; //just empty
+        var rangeOfData = InitialData.FindAll(x => x.Date >= startDate && x.Date <= endDate);
+        result.InitialData = rangeOfData;
+        return result;
     }
 
     public class Row
