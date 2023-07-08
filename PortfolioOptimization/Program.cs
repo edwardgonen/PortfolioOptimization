@@ -1,6 +1,5 @@
 ﻿// See https://aka.ms/new-console-template for more information
 
-using System.Runtime.InteropServices.JavaScript;
 using PortfolioOptimization;
 
 int contractsRangeStart = 0;
@@ -8,6 +7,9 @@ int contractsRangeEnd = 30;
 string inputFileName = "../../../../data/Strategy_DailyPL.csv";
 int inSampleDays = 100;
 int outSampleDays = 30;
+
+
+
 
 switch (args.Length)
 {
@@ -43,6 +45,13 @@ switch (args.Length)
         return -2;
 }
 
+string? dataFolder = Path.GetDirectoryName(inputFileName);
+if (dataFolder == null)
+{
+    Logger.Log("Wrong data folder in name " + inputFileName);
+    return -6;
+}
+
 Logger.Log("Using " + inputFileName + " InSample length " + inSampleDays + " OutSample length " + outSampleDays);
 
 Logger.Log("Reading input data");
@@ -67,9 +76,14 @@ if (endDateOfInSample >= lastAvailableDate)
     return -1;
 }
 
+
+var contractsAllocation = new ContractsAllocation(dataFolder);
+
+List<Task> optimizationTasks = new List<Task>();
+
 for (DateTime date = firstAvailableDate; date <= lastAvailableDate; date = date.AddDays(outSampleDays))
 {
-    startDateOfInSample = startDateOfInSample.AddDays(inSampleDays);
+    startDateOfInSample = startDateOfInSample.AddDays(outSampleDays);
     startDateOfInSample = (lastAvailableDate <= startDateOfInSample ? lastAvailableDate : startDateOfInSample);
     
     endDateOfInSample = startDateOfInSample.AddDays(inSampleDays);
@@ -84,20 +98,34 @@ for (DateTime date = firstAvailableDate; date <= lastAvailableDate; date = date.
     Logger.Log("Working on in sample from " + startDateOfInSample.ToShortDateString() + " to " + endDateOfInSample.ToShortDateString());
     DataHolder currentData = dataHolder.GetRangeOfData(startDateOfInSample, endDateOfInSample);
     
-    //optimize
-    GeneticSharpAlgorithm gsa = new GeneticSharpAlgorithm(strategyList.Count, currentData, contractsRangeStart, contractsRangeEnd);
-    gsa.Start();
-    //store results
-    var bestChromosome = gsa.BestChromosome();
-    var bestFitness = gsa.BestFitness();
     
-    Logger.Log("Final Solution for " + startDateOfInSample.ToShortDateString() + " - " + endDateOfInSample.ToShortDateString());
-    Logger.Log(string.Join(", ", bestChromosome));
-    Logger.Log("Best sharpe is " + bestFitness);
-    
-}
+    var tokenSource = new CancellationTokenSource();
+    var token = tokenSource.Token;
 
+    optimizationTasks.Add(Task.Factory.StartNew( () => 
+        {
+            //optimize
+            GeneticSharpAlgorithm gsa = new GeneticSharpAlgorithm(strategyList.Count, currentData, contractsRangeStart, contractsRangeEnd);
+            gsa.Start();
+            //store results
+            var bestChromosome = gsa.BestChromosome();
+            var bestFitness = gsa.BestFitness();
+            Logger.Log("Final Solution for " + currentData.InitialData.First().Date.ToShortDateString() + " - " + currentData.InitialData.Last().Date.ToShortDateString());
+            Logger.Log(string.Join(", ", bestChromosome));
+            Logger.Log("Best sharpe is " + bestFitness);
+            var j = 0;
+            foreach (var strategyName in strategyList)
+            {
+                contractsAllocation.AddAllocation(currentData.InitialData.Last().Date.AddDays(1), strategyName, bestChromosome[j++]);
+            }
+        }
+        , token));
+}
+await Task.WhenAll(optimizationTasks);
+//sort allocations by date
+contractsAllocation.SortByDate();
 //save to allocation file
+contractsAllocation.SaveToFile();
 int i = 0;
 
 /*
