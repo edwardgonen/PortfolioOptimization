@@ -27,6 +27,32 @@ public class ContractsAllocation
         }
     }
 
+    public decimal GetAllocation(DateTime processedDate, string strategyName)
+    {
+        decimal result = -1;
+
+        lock (_contractAllocationsDictionary)
+        {
+            if (!_contractAllocationsDictionary.ContainsKey(strategyName)) throw new MyException("Strategy " + strategyName + " was not found in the allocation table.");
+            var allocationsForStrategy = _contractAllocationsDictionary[strategyName];
+            
+            for (var i = 0; i < allocationsForStrategy.Count - 1; i++)
+            {
+                if (processedDate < allocationsForStrategy.First().AllocationStartDate) return 0; //don't count
+                if (processedDate >= allocationsForStrategy.Last().AllocationStartDate)
+                    return allocationsForStrategy.Last().NumberOfContracts;
+                
+                if (processedDate >= allocationsForStrategy[i].AllocationStartDate &&
+                    processedDate < allocationsForStrategy[i + 1].AllocationStartDate)
+                {
+                    return allocationsForStrategy[i].NumberOfContracts;
+                }
+            }
+        }
+
+        return result;
+    }
+
     public void SortByDate()
     {
         lock (_contractAllocationsDictionary)
@@ -67,7 +93,7 @@ public class ContractsAllocation
         }
     }
 
-class AllocationPerDate
+    class AllocationPerDate
     {
         public DateTime AllocationStartDate { get; }
         public decimal NumberOfContracts { get; }
@@ -78,5 +104,4 @@ class AllocationPerDate
             NumberOfContracts = numberOfContracts;
         }
     }
-    
 }

@@ -120,9 +120,17 @@ for (DateTime date = firstAvailableDate; date <= lastAvailableDate; date = date.
 await Task.WhenAll(optimizationTasks);
 //sort allocations by date
 contractsAllocation.SortByDate();
+//make the total result
+var accumulatedProfit = Profit.CalculateAccumulatedProfit(dataHolder, contractsAllocation, strategyList);
+
+await using StreamWriter outputFile = new StreamWriter(dataFolder + Path.DirectorySeparatorChar + "AccumulatedProfit.csv");
+foreach (var row in accumulatedProfit)
+{
+    outputFile.WriteLine(row.Date.ToShortDateString() + "," + row.ProfitToDate);
+}
+
 //save to allocation file
 contractsAllocation.SaveToFile();
-int i = 0;
 
 /*
 Logger.Log("Optimize using my Genetic");

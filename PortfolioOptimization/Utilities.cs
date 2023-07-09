@@ -11,14 +11,12 @@ public static class Logger
 public class Permutations
 {
     public List<int[]> Result { get; } = new();
-    private readonly OptimizerContractsToSharpe _optimizerContractsToSharpe;
     public decimal BestSharpe { get; private set; } = Decimal.MinValue;
     private readonly DataHolder _dataHolder;
     public int[] BestPermutation { get; }
 
-    public Permutations(OptimizerContractsToSharpe optimizerContractsToSharpe, DataHolder dataHolder)
+    public Permutations(DataHolder dataHolder)
     {
-        _optimizerContractsToSharpe = optimizerContractsToSharpe;
         _dataHolder = dataHolder;
         BestPermutation = new int[_dataHolder.StrategyList.Count];
     }
@@ -36,12 +34,6 @@ public class Permutations
             array[0] = range[i];
             GeneratePermutationsHelper(array, 1, range);
         });
-        
-        // foreach (var t in range)
-        // {
-        //     array[0] = t;
-        //     GeneratePermutationsHelper(array, 1, range);
-        // }
     }
 
     private void GeneratePermutationsHelper(int[] array, int index, int[] range)
@@ -68,15 +60,14 @@ public class Permutations
     }
 }
 
-public static class Profit
+public class Profit
 {
     public static decimal CalculateProfitForOnePermutation(int[] array, DataHolder initialDataHolder)
     {
         decimal[] totalDailyPnLs = new decimal[initialDataHolder.InitialData.Count];
-
-        int j = 0;
+        
         decimal totalProfit = 0;
-        foreach (var row in initialDataHolder.InitialData)
+        for (var j = 0; j < initialDataHolder.InitialData.Count; j++)
         {
             totalDailyPnLs[j] = 0;
             for (var i = 0; i < array.Length; i++)
@@ -84,11 +75,37 @@ public static class Profit
                 totalDailyPnLs[j] += initialDataHolder.InitialData[j].DailyAccumulatedPnlByStrategy[i] * array[i];
                 totalProfit += totalDailyPnLs[j];
             }
-
-            j++;
         }
         
         return totalProfit;
+    }
+
+    public static List<AccumulatedProfit> CalculateAccumulatedProfit(DataHolder initialData,
+        ContractsAllocation contractsAllocation, List<string> strategiesNames)
+    {
+        var result = new List<AccumulatedProfit>();
+
+        decimal accumulatedProfit = 0;
+        foreach (var row in initialData.InitialData)
+        {
+            decimal dailyProfit = 0;
+            for (var i = 0; i < row.DailyAccumulatedPnlByStrategy.Length; i++)
+            {
+                decimal allocationForStrategyToday = contractsAllocation.GetAllocation(row.Date, strategiesNames[i]);
+                dailyProfit += row.DailyAccumulatedPnlByStrategy[i] * allocationForStrategyToday;
+            }
+
+            accumulatedProfit += dailyProfit;
+            result.Add(new AccumulatedProfit(){Date = row.Date, ProfitToDate = accumulatedProfit});
+        }
+
+        return result;
+    }
+
+    public class AccumulatedProfit
+    {
+        public DateTime Date;
+        public decimal ProfitToDate;
     }
 }
 public static class Sharpe
@@ -107,23 +124,18 @@ public static class Sharpe
 
     public static decimal CalculateSharpeForOnePermutation(int[] array, DataHolder initialDataHolder)
     {
-        decimal sharpe = -1;
-
         decimal[] totalDailyPnLs = new decimal[initialDataHolder.InitialData.Count];
-
-        int j = 0;
-        foreach (var row in initialDataHolder.InitialData)
+        
+        for (var j = 0; j < initialDataHolder.InitialData.Count; j++)
         {
             totalDailyPnLs[j] = 0;
             for (var i = 0; i < array.Length; i++)
             {
                 totalDailyPnLs[j] += initialDataHolder.InitialData[j].DailyAccumulatedPnlByStrategy[i] * array[i];
             }
-
-            j++;
         }
 
-        sharpe = Sharpe.CalculateSharpeRatio(totalDailyPnLs);
+        var sharpe = Sharpe.CalculateSharpeRatio(totalDailyPnLs);
 
         //let's multiply by array all strategies PnLs
         return sharpe;

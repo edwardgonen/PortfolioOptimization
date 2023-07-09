@@ -89,8 +89,8 @@ public class ArrayFitness : IFitness
         {
             _targetArray[i] = (int)doubleValues[i];
         }
-        //decimal evaluationValue = Sharpe.CalculateSharpeForOnePermutation(_targetArray, _initialDataHolder);
-        decimal evaluationValue = Profit.CalculateProfitForOnePermutation(_targetArray, _initialDataHolder);
+        decimal evaluationValue = Sharpe.CalculateSharpeForOnePermutation(_targetArray, _initialDataHolder);
+        //decimal evaluationValue = Profit.CalculateProfitForOnePermutation(_targetArray, _initialDataHolder);
         return (double)evaluationValue;
     }
 }
