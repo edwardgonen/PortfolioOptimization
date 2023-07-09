@@ -68,6 +68,29 @@ public class Permutations
     }
 }
 
+public static class Profit
+{
+    public static decimal CalculateProfitForOnePermutation(int[] array, DataHolder initialDataHolder)
+    {
+        decimal[] totalDailyPnLs = new decimal[initialDataHolder.InitialData.Count];
+
+        int j = 0;
+        decimal totalProfit = 0;
+        foreach (var row in initialDataHolder.InitialData)
+        {
+            totalDailyPnLs[j] = 0;
+            for (var i = 0; i < array.Length; i++)
+            {
+                totalDailyPnLs[j] += initialDataHolder.InitialData[j].DailyAccumulatedPnlByStrategy[i] * array[i];
+                totalProfit += totalDailyPnLs[j];
+            }
+
+            j++;
+        }
+        
+        return totalProfit;
+    }
+}
 public static class Sharpe
 {
 

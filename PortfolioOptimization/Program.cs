@@ -5,9 +5,9 @@ using PortfolioOptimization;
 int contractsRangeStart = 0;
 int contractsRangeEnd = 30;
 string inputFileName = "../../../../data/Strategy_DailyPL.csv";
-int inSampleDays = 100;
+int inSampleDays = 150;
 int outSampleDays = 30;
-
+bool bParallel = true;
 
 
 
@@ -56,7 +56,7 @@ Logger.Log("Using " + inputFileName + " InSample length " + inSampleDays + " Out
 
 Logger.Log("Reading input data");
 var dataHolder = new DataHolder(inputFileName);
-//var optimizer = new OptimizerContractsToSharpe(dataHolder);
+var optimizer = new OptimizerContractsToSharpe(dataHolder);
 var strategyList = dataHolder.StrategyList;
 
 Logger.Log("Loaded " + strategyList.Count + " strategies and " + dataHolder.InitialData.Count + " data points");
@@ -102,24 +102,20 @@ for (DateTime date = firstAvailableDate; date <= lastAvailableDate; date = date.
     var tokenSource = new CancellationTokenSource();
     var token = tokenSource.Token;
 
-    optimizationTasks.Add(Task.Factory.StartNew( () => 
-        {
-            //optimize
-            GeneticSharpAlgorithm gsa = new GeneticSharpAlgorithm(strategyList.Count, currentData, contractsRangeStart, contractsRangeEnd);
-            gsa.Start();
-            //store results
-            var bestChromosome = gsa.BestChromosome();
-            var bestFitness = gsa.BestFitness();
-            Logger.Log("Final Solution for " + currentData.InitialData.First().Date.ToShortDateString() + " - " + currentData.InitialData.Last().Date.ToShortDateString());
-            Logger.Log(string.Join(", ", bestChromosome));
-            Logger.Log("Best sharpe is " + bestFitness);
-            var j = 0;
-            foreach (var strategyName in strategyList)
+    if (!bParallel)
+    {
+        optimizer.OptimizeAndUpdate(currentData, strategyList, contractsAllocation, contractsRangeStart,
+            contractsRangeEnd);
+    }
+    else
+    {
+        optimizationTasks.Add(Task.Factory.StartNew(() =>
             {
-                contractsAllocation.AddAllocation(currentData.InitialData.Last().Date.AddDays(1), strategyName, bestChromosome[j++]);
+                optimizer.OptimizeAndUpdate(currentData, strategyList, contractsAllocation, contractsRangeStart,
+                    contractsRangeEnd);
             }
-        }
-        , token));
+            , token));
+    }
 }
 await Task.WhenAll(optimizationTasks);
 //sort allocations by date
