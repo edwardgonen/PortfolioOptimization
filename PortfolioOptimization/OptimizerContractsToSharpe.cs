@@ -18,7 +18,7 @@ public class OptimizerContractsToSharpe
         var bestFitness = gsa.BestFitness();
         Logger.Log("Final Solution for " + currentData.InitialData.First().Date.ToShortDateString() + " - " + currentData.InitialData.Last().Date.ToShortDateString());
         Logger.Log(string.Join(", ", bestChromosome));
-        Logger.Log("Best sharpe is " + bestFitness);
+        Logger.Log("Best fitness value is " + bestFitness);
         var j = 0;
         foreach (var strategyName in strategyList)
         {

@@ -1,6 +1,6 @@
 ﻿// See https://aka.ms/new-console-template for more information
 
-using PortfolioOptimization;
+using PortfolioOptimization;       
 
 int contractsRangeStart = 0;
 int contractsRangeEnd = 30;
@@ -87,6 +87,24 @@ for (DateTime date = firstAvailableDate; date <= lastAvailableDate; date = date.
     startDateOfInSample = (lastAvailableDate <= startDateOfInSample ? lastAvailableDate : startDateOfInSample);
     
     endDateOfInSample = startDateOfInSample.AddDays(inSampleDays);
+    //always end out sample on Friday
+    //find next friday
+    var bFridayFound = false;
+    for (var i = 0; i < 8; i++)
+    {
+        var nextDay = endDateOfInSample.AddDays(i);
+        if (nextDay.DayOfWeek == DayOfWeek.Friday)
+        {
+            endDateOfInSample = nextDay;
+            bFridayFound = true;
+            break;
+        }
+    }
+
+    if (!bFridayFound)
+    {
+        throw new MyException("Next Friday was not found");
+    }
     endDateOfInSample = (lastAvailableDate <= endDateOfInSample ? lastAvailableDate : endDateOfInSample);
 
     if ((endDateOfInSample - startDateOfInSample).Days < inSampleDays)
