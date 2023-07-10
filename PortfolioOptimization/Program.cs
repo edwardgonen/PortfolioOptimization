@@ -126,7 +126,7 @@ var accumulatedProfit = Profit.CalculateAccumulatedProfit(dataHolder, contractsA
 await using StreamWriter outputFile = new StreamWriter(dataFolder + Path.DirectorySeparatorChar + "AccumulatedProfit.csv");
 foreach (var row in accumulatedProfit)
 {
-    outputFile.WriteLine(row.Date.ToShortDateString() + "," + row.ProfitToDate);
+    outputFile.WriteLine(row.Date.ToShortDateString() + "," + row.ProfitToday + "," + row.ProfitToDate);
 }
 
 //save to allocation file

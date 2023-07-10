@@ -60,7 +60,7 @@ public class Permutations
     }
 }
 
-public class Profit
+public abstract class Profit
 {
     public static decimal CalculateProfitForOnePermutation(int[] array, DataHolder initialDataHolder)
     {
@@ -96,7 +96,7 @@ public class Profit
             }
 
             accumulatedProfit += dailyProfit;
-            result.Add(new AccumulatedProfit(){Date = row.Date, ProfitToDate = accumulatedProfit});
+            result.Add(new AccumulatedProfit(){Date = row.Date, ProfitToday = dailyProfit, ProfitToDate = accumulatedProfit});
         }
 
         return result;
@@ -105,6 +105,7 @@ public class Profit
     public class AccumulatedProfit
     {
         public DateTime Date;
+        public decimal ProfitToday;
         public decimal ProfitToDate;
     }
 }
@@ -141,7 +142,7 @@ public static class Sharpe
         return sharpe;
     }
 
-    public static decimal CalculateSharpeRatio(decimal[] returns)
+    private static decimal CalculateSharpeRatio(decimal[] returns)
     {
         decimal averageReturn = CalculateAverage(returns);
         decimal standardDeviation = CalculateStandardDeviation(returns);
