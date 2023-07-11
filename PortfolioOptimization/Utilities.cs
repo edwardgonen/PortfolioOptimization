@@ -11,11 +11,11 @@ public static class Logger
 
 public abstract class Profit
 {
-    public static decimal CalculateProfitForOnePermutation(int[] array, DataHolder initialDataHolder)
+    public static double CalculateProfitForOnePermutation(int[] array, DataHolder initialDataHolder)
     {
-        decimal[] totalDailyPnLs = new decimal[initialDataHolder.InitialData.Count];
+        double[] totalDailyPnLs = new double[initialDataHolder.InitialData.Count];
         
-        decimal totalProfit = 0;
+        double totalProfit = 0;
         for (var j = 0; j < initialDataHolder.InitialData.Count; j++)
         {
             totalDailyPnLs[j] = 0;
@@ -34,13 +34,13 @@ public abstract class Profit
     {
         var result = new List<AccumulatedProfit>();
 
-        decimal accumulatedProfit = 0;
+        double accumulatedProfit = 0;
         foreach (var row in initialData.InitialData)
         {
-            decimal dailyProfit = 0;
+            double dailyProfit = 0;
             for (var i = 0; i < row.DailyAccumulatedPnlByStrategy.Length; i++)
             {
-                decimal allocationForStrategyToday = contractsAllocation.GetAllocation(row.Date, strategiesNames[i]);
+                double allocationForStrategyToday = contractsAllocation.GetAllocation(row.Date, strategiesNames[i]);
                 dailyProfit += row.DailyAccumulatedPnlByStrategy[i] * allocationForStrategyToday;
             }
 
@@ -54,16 +54,16 @@ public abstract class Profit
     public class AccumulatedProfit
     {
         public DateTime Date;
-        public decimal ProfitToday;
-        public decimal ProfitToDate;
+        public double ProfitToday;
+        public double ProfitToDate;
     }
 }
 
 public abstract class Linearity
 {
-    public static decimal CalculateLinearityForOnePermutation(int[] array, DataHolder initialDataHolder)
+    public static double CalculateLinearityForOnePermutation(int[] array, DataHolder initialDataHolder)
     {
-        decimal[] totalDailyPnLs = new decimal[initialDataHolder.InitialData.Count];
+        double[] totalDailyPnLs = new double[initialDataHolder.InitialData.Count];
         
         for (var j = 0; j < initialDataHolder.InitialData.Count; j++)
         {
@@ -74,16 +74,14 @@ public abstract class Linearity
             }
         }
 
-        decimal tmp =Linearity.CalculateStandardDeviation(totalDailyPnLs);
-        if (tmp == 0) tmp = 0.0000000000000000001m;
-        var linearity = 1/tmp;
-
-        //let's multiply by array all strategies PnLs
-        return linearity;
+        double tmp =Linearity.CalculateStandardDeviation(totalDailyPnLs);
+        
+        if (tmp == 0) return double.PositiveInfinity;
+        return 1 / tmp;
     }
-    private static decimal CalculateAverage(decimal[] returns)
+    private static double CalculateAverage(double[] returns)
     {
-        decimal sum = 0m;
+        double sum = 0;
         foreach (var ret in returns)
         {
             sum += ret;
@@ -91,27 +89,27 @@ public abstract class Linearity
         return sum / returns.Length;
     }
 
-    private static decimal CalculateStandardDeviation(decimal[] returns)
+    private static double CalculateStandardDeviation(double[] returns)
     {
-        decimal average = CalculateAverage(returns);
-        decimal sumSquaredDiff = 0m;
+        double average = CalculateAverage(returns);
+        double sumSquaredDiff = 0;
         foreach (var ret in returns)
         {
-            decimal diff = ret - average;
+            double diff = ret - average;
             sumSquaredDiff += diff * diff;
         }
-        decimal variance = sumSquaredDiff / returns.Length;
-        return (decimal)Math.Sqrt((double)variance);
+        double variance = sumSquaredDiff / returns.Length;
+        return Math.Sqrt(variance);
     }
 }
 public abstract class Sharpe
 {
     
-    private static readonly decimal RiskFreeRate = new(15.8745078664);
+    private static readonly double RiskFreeRate = 15.8745078664;
 
-    public static decimal CalculateSharpeForOnePermutation(int[] array, DataHolder initialDataHolder)
+    public static double CalculateSharpeForOnePermutation(int[] array, DataHolder initialDataHolder)
     {
-        decimal[] totalDailyPnLs = new decimal[initialDataHolder.InitialData.Count];
+        double[] totalDailyPnLs = new double[initialDataHolder.InitialData.Count];
         
         for (var j = 0; j < initialDataHolder.InitialData.Count; j++)
         {
@@ -128,19 +126,19 @@ public abstract class Sharpe
         return sharpe;
     }
 
-    private static decimal CalculateSharpeRatio(decimal[] returns)
+    private static double CalculateSharpeRatio(double[] returns)
     {
-        decimal averageReturn = CalculateAverage(returns);
-        decimal standardDeviation = CalculateStandardDeviation(returns);
+        double averageReturn = CalculateAverage(returns);
+        double standardDeviation = CalculateStandardDeviation(returns);
 
         if (standardDeviation == 0) return 0;
         return averageReturn / standardDeviation * RiskFreeRate;
         
     }
 
-    private static decimal CalculateAverage(decimal[] returns)
+    private static double CalculateAverage(double[] returns)
     {
-        decimal sum = 0m;
+        double sum = 0;
         foreach (var ret in returns)
         {
             sum += ret;
@@ -148,16 +146,43 @@ public abstract class Sharpe
         return sum / returns.Length;
     }
 
-    private static decimal CalculateStandardDeviation(decimal[] returns)
+    private static double CalculateStandardDeviation(double[] returns)
     {
-        decimal average = CalculateAverage(returns);
-        decimal sumSquaredDiff = 0m;
+        double average = CalculateAverage(returns);
+        double sumSquaredDiff = 0;
         foreach (var ret in returns)
         {
-            decimal diff = ret - average;
+            double diff = ret - average;
             sumSquaredDiff += diff * diff;
         }
-        decimal variance = sumSquaredDiff / returns.Length;
-        return (decimal)Math.Sqrt((double)variance);
+        double variance = sumSquaredDiff / returns.Length;
+        return Math.Sqrt(variance);
+    }
+}
+public abstract class DrawDown
+{
+    public static double CalculateMaxDrawdownForOnePermutation(int[] array, DataHolder initialDataHolder)
+    {
+        double[] totalDailyPnLs = new double[initialDataHolder.InitialData.Count];
+
+        for (var j = 0; j < initialDataHolder.InitialData.Count; j++)
+        {
+            totalDailyPnLs[j] = 0;
+            for (var i = 0; i < array.Length; i++)
+            {
+                totalDailyPnLs[j] += initialDataHolder.InitialData[j].DailyAccumulatedPnlByStrategy[i] * array[i];
+            }
+        }
+
+        double[] dailyDrawdown = new double[initialDataHolder.InitialData.Count];
+        double maxDrawdown = double.MaxValue;
+        for (var i = 0; i < totalDailyPnLs.Length; i++)
+        {
+            if (i == 0) dailyDrawdown[i] = 0;
+            else dailyDrawdown[i] = Math.Min(0, totalDailyPnLs[i] + dailyDrawdown[i - 1]);
+            if (dailyDrawdown[i] < maxDrawdown) maxDrawdown = dailyDrawdown[i];
+        }
+        
+        return Math.Abs(maxDrawdown);
     }
 }

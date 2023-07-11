@@ -13,7 +13,7 @@ public class ContractsAllocation
     }
     
     
-    public void AddAllocation(DateTime allocationStartDate, string strategyName, decimal numberOfContracts)
+    public void AddAllocation(DateTime allocationStartDate, string strategyName, double numberOfContracts)
     {
         lock (_contractAllocationsDictionary)
         {
@@ -27,9 +27,9 @@ public class ContractsAllocation
         }
     }
 
-    public decimal GetAllocation(DateTime processedDate, string strategyName)
+    public double GetAllocation(DateTime processedDate, string strategyName)
     {
-        decimal result = -1;
+        double result = -1;
 
         lock (_contractAllocationsDictionary)
         {
@@ -96,9 +96,9 @@ public class ContractsAllocation
     class AllocationPerDate
     {
         public DateTime AllocationStartDate { get; }
-        public decimal NumberOfContracts { get; }
+        public double NumberOfContracts { get; }
 
-        public AllocationPerDate(DateTime allocationStartDate, decimal numberOfContracts)
+        public AllocationPerDate(DateTime allocationStartDate, double numberOfContracts)
         {
             AllocationStartDate = allocationStartDate;
             NumberOfContracts = numberOfContracts;

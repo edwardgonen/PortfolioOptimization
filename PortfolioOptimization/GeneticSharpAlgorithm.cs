@@ -63,9 +63,9 @@ public class GeneticSharpAlgorithm
         return result;
     }
 
-    public decimal BestFitness()
+    public double BestFitness()
     {
-        if (_ga.BestChromosome.Fitness != null) return (decimal) _ga.BestChromosome.Fitness.Value;
+        if (_ga.BestChromosome.Fitness != null) return _ga.BestChromosome.Fitness.Value;
         return -1;
     }
 }
@@ -89,9 +89,13 @@ public class ArrayFitness : IFitness
         {
             _targetArray[i] = (int)doubleValues[i];
         }
-        //decimal evaluationValue = Sharpe.CalculateSharpeForOnePermutation(_targetArray, _initialDataHolder);
-        decimal evaluationValue = Linearity.CalculateLinearityForOnePermutation(_targetArray, _initialDataHolder);
-        //decimal evaluationValue = Profit.CalculateProfitForOnePermutation(_targetArray, _initialDataHolder);
-        return (double)evaluationValue;
+        //double evaluationValue = Sharpe.CalculateSharpeForOnePermutation(_targetArray, _initialDataHolder);
+        //double evaluationValue = Linearity.CalculateLinearityForOnePermutation(_targetArray, _initialDataHolder);
+        double evaluationValue = Profit.CalculateProfitForOnePermutation(_targetArray, _initialDataHolder);
+        evaluationValue = evaluationValue /
+                          DrawDown.CalculateMaxDrawdownForOnePermutation(_targetArray, _initialDataHolder);
+        //double evaluationValue = Linearity.CalculateLinearityForOnePermutation(_targetArray, _initialDataHolder) * Profit.CalculateProfitForOnePermutation(_targetArray, _initialDataHolder);
+        
+        return evaluationValue;
     }
 }

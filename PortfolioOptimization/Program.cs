@@ -9,8 +9,6 @@ int inSampleDays = 150;
 int outSampleDays = 30;
 bool bParallel = true;
 
-
-
 switch (args.Length)
 {
     case 0:
@@ -25,7 +23,6 @@ switch (args.Length)
             Logger.Log("Wrong in sample length " + args[1]);
             return -3;
         }
-
         break;
     case 3:
         inputFileName = args[0];
@@ -39,6 +36,47 @@ switch (args.Length)
             Logger.Log("Wrong out sample length " + args[2]);
             return -4;
         }
+        break;
+    case 4:
+        inputFileName = args[0];
+        if (!int.TryParse(args[1], out inSampleDays))
+        {
+            Logger.Log("Wrong in sample length " + args[1]);
+            return -4;
+        }
+        if (!int.TryParse(args[2], out outSampleDays))
+        {
+            Logger.Log("Wrong out sample length " + args[2]);
+            return -4;
+        }
+        if (!int.TryParse(args[3], out contractsRangeStart))
+        {
+            Logger.Log("Wrong minimal contracts " + args[3]);
+            return -4;
+        }        
+        break;
+    case 5:
+        inputFileName = args[0];
+        if (!int.TryParse(args[1], out inSampleDays))
+        {
+            Logger.Log("Wrong in sample length " + args[1]);
+            return -4;
+        }
+        if (!int.TryParse(args[2], out outSampleDays))
+        {
+            Logger.Log("Wrong out sample length " + args[2]);
+            return -4;
+        }
+        if (!int.TryParse(args[3], out contractsRangeStart))
+        {
+            Logger.Log("Wrong minimal contracts " + args[3]);
+            return -4;
+        }      
+        if (!int.TryParse(args[3], out contractsRangeEnd))
+        {
+            Logger.Log("Wrong max contracts " + args[4]);
+            return -4;
+        }  
         break;
     default:
         Logger.Log("Wrong number of parameters. Usage <input data file> <in sample length> <out sample length>");

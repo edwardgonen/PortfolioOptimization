@@ -38,11 +38,11 @@ public class DataHolder
             }
             
 
-            var listOfAccumulatedPnl = new decimal[lineParts.Length - 1];
+            var listOfAccumulatedPnl = new double[lineParts.Length - 1];
             for (var j = 1; j < lineParts.Length; j++)
             {
                 //parse
-                if (!decimal.TryParse(lineParts[j], out var pnl))
+                if (!double.TryParse(lineParts[j], out var pnl))
                 {
                     throw new MyException("Wrong PnL format " + lineParts[j] + " at line " + i);
                 }
@@ -69,9 +69,9 @@ public class DataHolder
     public class Row
     {
         public DateTime Date { get; }
-        public decimal[] DailyAccumulatedPnlByStrategy { get; }
+        public double[] DailyAccumulatedPnlByStrategy { get; }
 
-        public Row(DateTime date, decimal[] dailyAccumulatedPnlByStrategy)
+        public Row(DateTime date, double[] dailyAccumulatedPnlByStrategy)
         {
             Date = date;
             DailyAccumulatedPnlByStrategy = dailyAccumulatedPnlByStrategy;
