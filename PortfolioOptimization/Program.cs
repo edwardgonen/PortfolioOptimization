@@ -72,7 +72,7 @@ switch (args.Length)
             Logger.Log("Wrong minimal contracts " + args[3]);
             return -4;
         }      
-        if (!int.TryParse(args[3], out contractsRangeEnd))
+        if (!int.TryParse(args[4], out contractsRangeEnd))
         {
             Logger.Log("Wrong max contracts " + args[4]);
             return -4;
