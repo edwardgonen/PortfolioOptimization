@@ -2,7 +2,7 @@ using GeneticSharp;
 
 namespace PortfolioOptimization;
 
-public class GeneticSharpAlgorithm
+public class GeneticSharpAlgorithm : GeneticAlgorithmInterface
 {
     private readonly GeneticAlgorithm _ga;
     public GeneticSharpAlgorithm(int numberOfStrategies, DataHolder dataHolder, int minValue, int maxValue)

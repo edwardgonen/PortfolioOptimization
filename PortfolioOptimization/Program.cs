@@ -8,6 +8,8 @@ string inputFileName = "../../../../data/Strategy_DailyPL.csv";
 int inSampleDays = 300;
 int outSampleDays = 30;
 bool bParallel = true;
+OptimizerContractsToSharpe.GeneticAlgorithmType algorithmType =
+    OptimizerContractsToSharpe.GeneticAlgorithmType.GeneticMine;
 
 switch (args.Length)
 {
@@ -78,6 +80,34 @@ switch (args.Length)
             return -4;
         }  
         break;
+    case 6:
+        inputFileName = args[0];
+        if (!int.TryParse(args[1], out inSampleDays))
+        {
+            Logger.Log("Wrong in sample length " + args[1]);
+            return -4;
+        }
+        if (!int.TryParse(args[2], out outSampleDays))
+        {
+            Logger.Log("Wrong out sample length " + args[2]);
+            return -4;
+        }
+        if (!int.TryParse(args[3], out contractsRangeStart))
+        {
+            Logger.Log("Wrong minimal contracts " + args[3]);
+            return -4;
+        }      
+        if (!int.TryParse(args[4], out contractsRangeEnd))
+        {
+            Logger.Log("Wrong max contracts " + args[4]);
+            return -4;
+        }
+
+        if (args[5].ToUpper().StartsWith("T"))
+            algorithmType = OptimizerContractsToSharpe.GeneticAlgorithmType.GeneticSharp;
+        else
+            algorithmType = OptimizerContractsToSharpe.GeneticAlgorithmType.GeneticMine;
+        break;
     default:
         Logger.Log("Wrong number of parameters. Usage <input data file> <in sample length> <out sample length>");
         return -2;
@@ -94,7 +124,7 @@ Logger.Log("Using " + inputFileName + " InSample length " + inSampleDays + " Out
 
 Logger.Log("Reading input data");
 var dataHolder = new DataHolder(inputFileName);
-var optimizer = new OptimizerContractsToSharpe(dataHolder);
+var optimizer = new OptimizerContractsToSharpe(dataHolder, algorithmType);
 var strategyList = dataHolder.StrategyList;
 
 Logger.Log("Loaded " + strategyList.Count + " strategies and " + dataHolder.InitialData.Count + " data points");

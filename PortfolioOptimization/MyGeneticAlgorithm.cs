@@ -4,7 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-class MyGeneticAlgorithm
+class MyGeneticAlgorithm : GeneticAlgorithmInterface
 {
     private double _bestFitnessValue;
     private int[] _finalChromosome;

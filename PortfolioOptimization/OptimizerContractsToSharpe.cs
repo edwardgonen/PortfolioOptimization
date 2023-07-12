@@ -3,17 +3,30 @@ namespace PortfolioOptimization;
 public class OptimizerContractsToSharpe
 {
     private readonly DataHolder _initialDataHolder;
-    public OptimizerContractsToSharpe(DataHolder dataHolder)
+    private readonly GeneticAlgorithmType _algorithmType;
+    public OptimizerContractsToSharpe(DataHolder dataHolder, GeneticAlgorithmType algorithmType)
     {
         _initialDataHolder = dataHolder;
+        _algorithmType = algorithmType;
     }
 
     public void OptimizeAndUpdate(DataHolder currentData, List<string> strategyList, ContractsAllocation contractsAllocation, int contractsRangeStart, int contractsRangeEnd)
     {
         //optimize
 
-        //GeneticSharpAlgorithm gsa1 = new GeneticSharpAlgorithm(strategyList.Count, currentData, contractsRangeStart, contractsRangeEnd);
-        MyGeneticAlgorithm gsa = new MyGeneticAlgorithm(strategyList.Count, currentData, contractsRangeStart, contractsRangeEnd);
+        GeneticAlgorithmInterface gsa;
+
+        switch (_algorithmType)
+        {
+            case GeneticAlgorithmType.GeneticSharp:
+                gsa = new GeneticSharpAlgorithm(strategyList.Count, currentData, contractsRangeStart, contractsRangeEnd);
+                break;
+            case GeneticAlgorithmType.GeneticMine:
+            default:
+                gsa = new MyGeneticAlgorithm(strategyList.Count, currentData, contractsRangeStart, contractsRangeEnd);
+                break;
+        }
+
         gsa.Start();
         //store results
         var bestChromosome = gsa.BestChromosome();
@@ -28,4 +41,9 @@ public class OptimizerContractsToSharpe
         }
     }
 
+    public enum GeneticAlgorithmType
+    {
+        GeneticSharp,
+        GeneticMine
+    }
 }
