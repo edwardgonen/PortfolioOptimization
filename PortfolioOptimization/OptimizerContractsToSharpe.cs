@@ -19,6 +19,9 @@ public class OptimizerContractsToSharpe
             case GeneticAlgorithmType.GeneticSharp:
                 gsa = new GeneticSharpAlgorithm(strategyList.Count, currentData, contractsRangeStart, contractsRangeEnd);
                 break;
+            case GeneticAlgorithmType.Random:
+                gsa = new RandomAlgorithm(strategyList.Count, currentData, contractsRangeStart, contractsRangeEnd);
+                break;
             case GeneticAlgorithmType.GeneticMine:
             default:
                 gsa = new MyGeneticAlgorithm(strategyList.Count, currentData, contractsRangeStart, contractsRangeEnd);
@@ -42,6 +45,7 @@ public class OptimizerContractsToSharpe
     public enum GeneticAlgorithmType
     {
         GeneticSharp,
-        GeneticMine
+        GeneticMine,
+        Random
     }
 }
