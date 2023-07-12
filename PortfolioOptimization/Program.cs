@@ -124,7 +124,7 @@ Logger.Log("Using " + inputFileName + " InSample length " + inSampleDays + " Out
 
 Logger.Log("Reading input data");
 var dataHolder = new DataHolder(inputFileName);
-var optimizer = new OptimizerContractsToSharpe(dataHolder, algorithmType);
+var optimizer = new OptimizerContractsToSharpe(algorithmType);
 var strategyList = dataHolder.StrategyList;
 
 Logger.Log("Loaded " + strategyList.Count + " strategies and " + dataHolder.InitialData.Count + " data points");

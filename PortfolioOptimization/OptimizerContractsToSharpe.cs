@@ -2,11 +2,9 @@ namespace PortfolioOptimization;
 
 public class OptimizerContractsToSharpe
 {
-    private readonly DataHolder _initialDataHolder;
     private readonly GeneticAlgorithmType _algorithmType;
-    public OptimizerContractsToSharpe(DataHolder dataHolder, GeneticAlgorithmType algorithmType)
+    public OptimizerContractsToSharpe(GeneticAlgorithmType algorithmType)
     {
-        _initialDataHolder = dataHolder;
         _algorithmType = algorithmType;
     }
 
