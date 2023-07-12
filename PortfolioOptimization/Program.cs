@@ -2,10 +2,10 @@
 
 using PortfolioOptimization;       
 
-int contractsRangeStart = 0;
+int contractsRangeStart = 1;
 int contractsRangeEnd = 30;
 string inputFileName = "../../../../data/Strategy_DailyPL.csv";
-int inSampleDays = 150;
+int inSampleDays = 300;
 int outSampleDays = 30;
 bool bParallel = true;
 
