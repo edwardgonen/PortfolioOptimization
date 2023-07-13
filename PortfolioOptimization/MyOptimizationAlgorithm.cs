@@ -4,7 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-class MyGeneticAlgorithm : GeneticAlgorithmInterface
+class MyOptimizationAlgorithm : IOptimizationAlgorithm
 {
     private double _bestFitnessValue;
     private int[] _finalChromosome;
@@ -18,7 +18,7 @@ class MyGeneticAlgorithm : GeneticAlgorithmInterface
     private readonly DataHolder _initialDataHolder;
 
     //public MyGeneticAlgorithm(int populationSize, int chromosomeLength, int maxGenerations, int minValue, int maxValue, DataHolder initialDataHolder)
-    public MyGeneticAlgorithm(int numberOfStrategies, DataHolder dataHolder, int minValue, int maxValue)
+    public MyOptimizationAlgorithm(int numberOfStrategies, DataHolder dataHolder, int minValue, int maxValue)
     {
         _random = new Random();
         this._populationSize = 100;
@@ -182,22 +182,3 @@ class MyGeneticAlgorithm : GeneticAlgorithmInterface
         }
     }
 }
-
-/*
-class Program
-{
-    static void Main()
-    {
-        int populationSize = 100;
-        int chromosomeLength = 47;
-        int maxGenerations = 100;
-        int minValue = 3;
-        int maxValue = 33;
-
-        GeneticAlgorithm geneticAlgorithm = new GeneticAlgorithm(populationSize, chromosomeLength, maxGenerations, minValue, maxValue);
-        int[] solution = geneticAlgorithm.Optimize();
-
-        // Use the solution as needed
-    }
-}
-*/

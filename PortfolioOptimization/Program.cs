@@ -105,8 +105,10 @@ switch (args.Length)
 
         if (args[5].ToUpper().StartsWith("T"))
             algorithmType = OptimizerContractsToSharpe.GeneticAlgorithmType.GeneticSharp;
-        else if (args[5].ToUpper().StartsWith("R"))
+        else if (args[5].ToUpper().StartsWith("R")) 
             algorithmType = OptimizerContractsToSharpe.GeneticAlgorithmType.Random;
+        else if (args[5].ToUpper().StartsWith("G"))
+            algorithmType = OptimizerContractsToSharpe.GeneticAlgorithmType.GradientBased;
         else
             algorithmType = OptimizerContractsToSharpe.GeneticAlgorithmType.GeneticMine;
         break;

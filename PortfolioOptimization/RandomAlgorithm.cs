@@ -1,6 +1,6 @@
 namespace PortfolioOptimization;
 
-public class RandomAlgorithm : GeneticAlgorithmInterface
+public class RandomAlgorithm : IOptimizationAlgorithm
 {
     private readonly Random _random;
     private int _minValue;

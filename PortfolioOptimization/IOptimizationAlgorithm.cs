@@ -1,6 +1,6 @@
 namespace PortfolioOptimization;
 
-public interface GeneticAlgorithmInterface
+public interface IOptimizationAlgorithm
 {
     public void Start();
     public int[] BestChromosome();

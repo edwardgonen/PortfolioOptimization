@@ -12,19 +12,22 @@ public class OptimizerContractsToSharpe
     {
         //optimize
 
-        GeneticAlgorithmInterface gsa;
+        IOptimizationAlgorithm gsa;
 
         switch (_algorithmType)
         {
             case GeneticAlgorithmType.GeneticSharp:
-                gsa = new GeneticSharpAlgorithm(strategyList.Count, currentData, contractsRangeStart, contractsRangeEnd);
+                gsa = new OptimizationSharpAlgorithm(strategyList.Count, currentData, contractsRangeStart, contractsRangeEnd);
                 break;
             case GeneticAlgorithmType.Random:
                 gsa = new RandomAlgorithm(strategyList.Count, currentData, contractsRangeStart, contractsRangeEnd);
                 break;
+            case GeneticAlgorithmType.GradientBased:
+                gsa = new MyGradientBasedOptimizationAlgorithm(strategyList.Count, currentData, contractsRangeStart, contractsRangeEnd);
+                break;
             case GeneticAlgorithmType.GeneticMine:
             default:
-                gsa = new MyGeneticAlgorithm(strategyList.Count, currentData, contractsRangeStart, contractsRangeEnd);
+                gsa = new MyOptimizationAlgorithm(strategyList.Count, currentData, contractsRangeStart, contractsRangeEnd);
                 break;
         }
 
@@ -46,6 +49,7 @@ public class OptimizerContractsToSharpe
     {
         GeneticSharp,
         GeneticMine,
-        Random
+        Random,
+        GradientBased
     }
 }

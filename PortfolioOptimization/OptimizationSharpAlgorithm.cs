@@ -2,10 +2,10 @@ using GeneticSharp;
 
 namespace PortfolioOptimization;
 
-public class GeneticSharpAlgorithm : GeneticAlgorithmInterface
+public class OptimizationSharpAlgorithm : IOptimizationAlgorithm
 {
     private readonly GeneticAlgorithm _ga;
-    public GeneticSharpAlgorithm(int numberOfStrategies, DataHolder dataHolder, int minValue, int maxValue)
+    public OptimizationSharpAlgorithm(int numberOfStrategies, DataHolder dataHolder, int minValue, int maxValue)
     {
         var targetArray = new int[numberOfStrategies];
         var fitness = new ArrayFitness(dataHolder, targetArray);
