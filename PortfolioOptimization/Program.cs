@@ -108,7 +108,7 @@ switch (args.Length)
         else if (args[5].ToUpper().StartsWith("R")) 
             algorithmType = OptimizerContractsToSharpe.GeneticAlgorithmType.Random;
         else if (args[5].ToUpper().StartsWith("G"))
-            algorithmType = OptimizerContractsToSharpe.GeneticAlgorithmType.GradientDescend;
+            algorithmType = OptimizerContractsToSharpe.GeneticAlgorithmType.GradientDescent;
         else
             algorithmType = OptimizerContractsToSharpe.GeneticAlgorithmType.GeneticMine;
         break;

@@ -1,6 +1,6 @@
 namespace PortfolioOptimization;
 
-public class MyGradientDescendOptimizationAlgorithm : IOptimizationAlgorithm
+public class MyGradientDescentOptimizationAlgorithm : IOptimizationAlgorithm
 {
     private double _bestFitnessValue;
     private int[] _finalSolution;
@@ -16,7 +16,7 @@ public class MyGradientDescendOptimizationAlgorithm : IOptimizationAlgorithm
     private readonly int _maxValue;
     private readonly DataHolder _initialDataHolder;
 
-    public MyGradientDescendOptimizationAlgorithm(int numberOfStrategies, DataHolder dataHolder, int minValue,
+    public MyGradientDescentOptimizationAlgorithm(int numberOfStrategies, DataHolder dataHolder, int minValue,
         int maxValue)
     {
         this._solutionArrayLength = numberOfStrategies;
