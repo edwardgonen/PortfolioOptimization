@@ -1,9 +1,9 @@
 namespace PortfolioOptimization;
 
-public class OptimizerContractsToSharpe
+public class OptimizerContracts
 {
     private readonly GeneticAlgorithmType _algorithmType;
-    public OptimizerContractsToSharpe(GeneticAlgorithmType algorithmType)
+    public OptimizerContracts(GeneticAlgorithmType algorithmType)
     {
         _algorithmType = algorithmType;
     }
@@ -25,10 +25,8 @@ public class OptimizerContractsToSharpe
             case GeneticAlgorithmType.GradientDescent:
                 gsa = new MyGradientDescentOptimizationAlgorithm(strategyList.Count, currentData, contractsRangeStart, contractsRangeEnd);
                 break;
-            case GeneticAlgorithmType.GeneticMine:
             default:
-                gsa = new MyOptimizationAlgorithm(strategyList.Count, currentData, contractsRangeStart, contractsRangeEnd);
-                break;
+                throw new MyException("Algorithm not selected");
         }
 
         gsa.Start();
@@ -48,7 +46,6 @@ public class OptimizerContractsToSharpe
     public enum GeneticAlgorithmType
     {
         GeneticSharp,
-        GeneticMine,
         Random,
         GradientDescent
     }

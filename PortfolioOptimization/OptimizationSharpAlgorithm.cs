@@ -33,7 +33,7 @@ public class OptimizationSharpAlgorithm : IOptimizationAlgorithm
         
         //var chromosome = new FloatingPointChromosome(mins, maxValue, 1); 
         
-        var population = new Population(50, 100, chromosome);
+        var population = new Population(1000, 1000, chromosome);
         var selection = new EliteSelection();
         var crossover = new UniformCrossover();
         var mutation = new UniformMutation(true);
@@ -90,10 +90,13 @@ public class ArrayFitness : IFitness
             _targetArray[i] = (int)doubleValues[i];
         }
         //double evaluationValue = Sharpe.CalculateSharpeForOnePermutation(_targetArray, _initialDataHolder);
+        
         //double evaluationValue = Linearity.CalculateLinearityForOnePermutation(_targetArray, _initialDataHolder);
+        
         double evaluationValue = Profit.CalculateProfitForOnePermutation(_targetArray, _initialDataHolder);
         evaluationValue = evaluationValue /
                           DrawDown.CalculateMaxDrawdownForOnePermutation(_targetArray, _initialDataHolder);
+        
         //double evaluationValue = Linearity.CalculateLinearityForOnePermutation(_targetArray, _initialDataHolder) * Profit.CalculateProfitForOnePermutation(_targetArray, _initialDataHolder);
         
         return evaluationValue;

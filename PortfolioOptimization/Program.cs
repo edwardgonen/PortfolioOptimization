@@ -8,8 +8,8 @@ string inputFileName = "../../../../data/Strategy_DailyPL.csv";
 int inSampleDays = 300;
 int outSampleDays = 30;
 bool bParallel = true;
-OptimizerContractsToSharpe.GeneticAlgorithmType algorithmType =
-    OptimizerContractsToSharpe.GeneticAlgorithmType.GeneticMine;
+OptimizerContracts.GeneticAlgorithmType algorithmType =
+    OptimizerContracts.GeneticAlgorithmType.GeneticSharp;
 
 switch (args.Length)
 {
@@ -104,13 +104,13 @@ switch (args.Length)
         }
 
         if (args[5].ToUpper().StartsWith("T"))
-            algorithmType = OptimizerContractsToSharpe.GeneticAlgorithmType.GeneticSharp;
+            algorithmType = OptimizerContracts.GeneticAlgorithmType.GeneticSharp;
         else if (args[5].ToUpper().StartsWith("R")) 
-            algorithmType = OptimizerContractsToSharpe.GeneticAlgorithmType.Random;
+            algorithmType = OptimizerContracts.GeneticAlgorithmType.Random;
         else if (args[5].ToUpper().StartsWith("G"))
-            algorithmType = OptimizerContractsToSharpe.GeneticAlgorithmType.GradientDescent;
+            algorithmType = OptimizerContracts.GeneticAlgorithmType.GradientDescent;
         else
-            algorithmType = OptimizerContractsToSharpe.GeneticAlgorithmType.GeneticMine;
+            algorithmType = OptimizerContracts.GeneticAlgorithmType.GeneticSharp;
         break;
     default:
         Logger.Log("Wrong number of parameters. Usage <input data file> <in sample length> <out sample length>");
@@ -128,7 +128,7 @@ Logger.Log("Using " + inputFileName + " InSample length " + inSampleDays + " Out
 
 Logger.Log("Reading input data");
 var dataHolder = new DataHolder(inputFileName);
-var optimizer = new OptimizerContractsToSharpe(algorithmType);
+var optimizer = new OptimizerContracts(algorithmType);
 var strategyList = dataHolder.StrategyList;
 
 Logger.Log("Loaded " + strategyList.Count + " strategies and " + dataHolder.InitialData.Count + " data points");
@@ -222,54 +222,5 @@ foreach (var row in accumulatedProfit)
 //save to allocation file
 contractsAllocation.SaveToFile();
 
-/*
-Logger.Log("Optimize using my Genetic");
-int populationSize = 100;
-int chromosomeLength = strategyList.Count;
-int maxGenerations = 100;
-
-MyGeneticAlgorithm myGeneticAlgorithm = new MyGeneticAlgorithm(populationSize, chromosomeLength, maxGenerations, 
-    rangeStart, 
-    rangeEnd,
-    dataHolder
-    );
-int[] solution = myGeneticAlgorithm.Optimize();
-Logger.Log("Final Solution:");
-Logger.Log(string.Join(", ", solution));
-Logger.Log("Best sharpe is " + myGeneticAlgorithm.BestFitness);
-*/
-
-/*
-Logger.Log("Calculating permutations started at " + DateTime.Now);
-var permutations = new Permutations(optimizer, dataHolder);
-permutations.GeneratePermutations(new int[strategyList.Count], rangeStart, rangeEnd, step);
-Logger.Log("Calculating permutations completed at " + DateTime.Now);
-
-Logger.Log("Best total Sharpe is " + permutations.BestSharpe);
-Logger.Log("Best permutation is ");
-foreach (var element in permutations.BestPermutation)
-{
-    Console.Out.Write(element + ",");
-}
-
-var permutationsTable = permutations.Result;
-
-Logger.Log("Saving permutations in a file started at " + DateTime.Now);
-// Create a file to write to.
-using (StreamWriter sw = File.CreateText("../../../../data/Permutations.csv"))
-{
-    foreach (var line in permutations.Result)
-    {
-        string lineToWrite = String.Empty;
-        foreach (var num in line)
-        {
-            lineToWrite += num + ",";
-        }
-        sw.WriteLine(lineToWrite);
-    }
-}	
-
-Logger.Log("Saving permutations in a file completed at " + DateTime.Now);
-*/
 return 0;
 

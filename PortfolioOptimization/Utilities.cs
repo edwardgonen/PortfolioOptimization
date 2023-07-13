@@ -74,7 +74,7 @@ public abstract class Linearity
             }
         }
 
-        double tmp =Linearity.CalculateStandardDeviation(totalDailyPnLs);
+        double tmp = CalculateStandardDeviation(totalDailyPnLs);
         
         if (tmp == 0) return double.PositiveInfinity;
         return 1 / tmp;
@@ -131,7 +131,7 @@ public abstract class Sharpe
         double averageReturn = CalculateAverage(returns);
         double standardDeviation = CalculateStandardDeviation(returns);
 
-        if (standardDeviation == 0) return 0;
+        if (standardDeviation == 0) standardDeviation = 1;
         return averageReturn / standardDeviation * RiskFreeRate;
         
     }
