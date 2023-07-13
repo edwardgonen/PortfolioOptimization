@@ -94,8 +94,7 @@ public class ArrayFitness : IFitness
         //double evaluationValue = Linearity.CalculateLinearityForOnePermutation(_targetArray, _initialDataHolder);
         
         double evaluationValue = Profit.CalculateProfitForOnePermutation(_targetArray, _initialDataHolder);
-        evaluationValue = evaluationValue /
-                          DrawDown.CalculateMaxDrawdownForOnePermutation(_targetArray, _initialDataHolder);
+        evaluationValue /= DrawDown.CalculateMaxDrawdownForOnePermutation(_targetArray, _initialDataHolder);
         
         //double evaluationValue = Linearity.CalculateLinearityForOnePermutation(_targetArray, _initialDataHolder) * Profit.CalculateProfitForOnePermutation(_targetArray, _initialDataHolder);
         
