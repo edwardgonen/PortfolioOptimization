@@ -1,12 +1,12 @@
 namespace PortfolioOptimization;
 
-public class MyGradientBasedOptimizationAlgorithm : IOptimizationAlgorithm
+public class MyGradientDescendOptimizationAlgorithm : IOptimizationAlgorithm
 {
     private double _bestFitnessValue;
     private int[] _finalSolution;
     
     
-    private static readonly Random _randomGenerator = new Random();
+    private static readonly Random RandomGenerator = new Random();
     private readonly int _solutionArrayLength;
 
     private const int MaxIterations = 1000;
@@ -16,7 +16,7 @@ public class MyGradientBasedOptimizationAlgorithm : IOptimizationAlgorithm
     private readonly int _maxValue;
     private readonly DataHolder _initialDataHolder;
 
-    public MyGradientBasedOptimizationAlgorithm(int numberOfStrategies, DataHolder dataHolder, int minValue,
+    public MyGradientDescendOptimizationAlgorithm(int numberOfStrategies, DataHolder dataHolder, int minValue,
         int maxValue)
     {
         this._solutionArrayLength = numberOfStrategies;
@@ -57,7 +57,7 @@ public class MyGradientBasedOptimizationAlgorithm : IOptimizationAlgorithm
 
         for (int i = 0; i < _solutionArrayLength; i++)
         {
-            array[i] = _randomGenerator.Next(_minValue, _maxValue + 1);
+            array[i] = RandomGenerator.Next(_minValue, _maxValue + 1);
         }
 
         return array;

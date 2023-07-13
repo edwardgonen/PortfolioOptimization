@@ -22,8 +22,8 @@ public class OptimizerContractsToSharpe
             case GeneticAlgorithmType.Random:
                 gsa = new RandomAlgorithm(strategyList.Count, currentData, contractsRangeStart, contractsRangeEnd);
                 break;
-            case GeneticAlgorithmType.GradientBased:
-                gsa = new MyGradientBasedOptimizationAlgorithm(strategyList.Count, currentData, contractsRangeStart, contractsRangeEnd);
+            case GeneticAlgorithmType.GradientDescend:
+                gsa = new MyGradientDescendOptimizationAlgorithm(strategyList.Count, currentData, contractsRangeStart, contractsRangeEnd);
                 break;
             case GeneticAlgorithmType.GeneticMine:
             default:
@@ -50,6 +50,6 @@ public class OptimizerContractsToSharpe
         GeneticSharp,
         GeneticMine,
         Random,
-        GradientBased
+        GradientDescend
     }
 }
