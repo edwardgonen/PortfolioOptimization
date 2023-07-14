@@ -8,6 +8,58 @@ public static class Logger
     }
 }
 
+public static class Utilities
+{
+    public static bool GetNextDayOfWeek(DateTime currentDate, DateTime lastAvailableDate, DayOfWeek soughtDay,
+        out DateTime foundDate)
+    {
+        bool result = false;
+        foundDate = currentDate;
+
+        for (var i = 0; i < 8; i++)
+        {
+            if (foundDate > lastAvailableDate)
+            {
+                foundDate = lastAvailableDate; //didn't find the day, so use the last available date anyway
+                return result; //we are past the end of array
+            }
+
+            if (foundDate.DayOfWeek == soughtDay)
+            {
+                return true;
+            }
+            foundDate = foundDate.AddDays(1);
+        }
+
+        foundDate = currentDate; //should not happen
+        throw new MyException("Next " + soughtDay + " was not found");
+    }
+    
+    public static bool GetPreviousDayOfWeek(DateTime currentDate, DateTime firstAvailableDate, DayOfWeek soughtDay,
+        out DateTime foundDate)
+    {
+        bool result = false;
+        foundDate = currentDate;
+
+        for (var i = 0; i < 8; i++)
+        {
+            if (foundDate < firstAvailableDate)
+            {
+                foundDate = firstAvailableDate; //didn't find the day, so use the last available date anyway
+                return result; //we are past the end of array
+            }
+
+            if (foundDate.DayOfWeek == soughtDay)
+            {
+                return true;
+            }
+            foundDate = foundDate.AddDays(-1);
+        }
+
+        foundDate = currentDate; //should not happen
+        throw new MyException("Previous " + soughtDay + " was not found");
+    }
+}
 
 public abstract class Profit
 {

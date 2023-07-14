@@ -153,42 +153,27 @@ var contractsAllocation = new ContractsAllocation(dataFolder);
 
 List<Task> optimizationTasks = new List<Task>();
 
-for (DateTime date = firstAvailableDate; date <= lastAvailableDate; date = date.AddDays(outSampleDays))
+//now loop. I'll go from end (latter) to begin (former)
+//1. find the start and end of last days of in sample
+//1.1 the end is the closest Friday before last available
+//do we have one?
+if (!Utilities.GetPreviousDayOfWeek(lastAvailableDate, firstAvailableDate, DayOfWeek.Friday, out endDateOfInSample))
 {
-    startDateOfInSample = startDateOfInSample.AddDays(outSampleDays);
-    startDateOfInSample = (lastAvailableDate <= startDateOfInSample ? lastAvailableDate : startDateOfInSample);
-    
-    endDateOfInSample = startDateOfInSample.AddDays(inSampleDays);
-    //always end out sample on Friday
-    //find next friday
-    var bFridayFound = false;
-    for (var i = 0; i < 8; i++)
-    {
-        var nextDay = endDateOfInSample.AddDays(i);
-        if (nextDay.DayOfWeek == DayOfWeek.Friday)
-        {
-            endDateOfInSample = nextDay;
-            bFridayFound = true;
-            break;
-        }
-    }
+    throw new MyException("Could not find last Friday before " + lastAvailableDate);
+}
+//here the end date of in sample is the last Friday
+//1.2 calculate first day of insample
+//it is prev monday before (end - length of insample)
+if (!Utilities.GetNextDayOfWeek(endDateOfInSample.AddDays(-inSampleDays), lastAvailableDate, DayOfWeek.Sunday, out startDateOfInSample))
+{
+    throw new MyException("Could not find next Monday before " + firstAvailableDate);
+}
 
-    if (!bFridayFound)
-    {
-        throw new MyException("Next Friday was not found");
-    }
-    endDateOfInSample = (lastAvailableDate <= endDateOfInSample ? lastAvailableDate : endDateOfInSample);
-
-    if ((endDateOfInSample - startDateOfInSample).Days < inSampleDays)
-    {
-        Logger.Log("Available data for In Sample is less than needed " + inSampleDays + ". Exiting");
-        break;
-    }
-    
+do
+{
     Logger.Log("Working on in sample from " + startDateOfInSample.ToShortDateString() + " to " + endDateOfInSample.ToShortDateString());
     DataHolder currentData = dataHolder.GetRangeOfData(startDateOfInSample, endDateOfInSample);
-    
-    
+
     var tokenSource = new CancellationTokenSource();
     var token = tokenSource.Token;
 
@@ -206,7 +191,30 @@ for (DateTime date = firstAvailableDate; date <= lastAvailableDate; date = date.
             }
             , token));
     }
-}
+    
+    //move back to the previous chunk by outSampleLength
+    endDateOfInSample = endDateOfInSample.AddDays(-outSampleDays);
+    startDateOfInSample = endDateOfInSample.AddDays(-inSampleDays);
+    if (startDateOfInSample < firstAvailableDate) startDateOfInSample = firstAvailableDate;
+    
+    if ((endDateOfInSample - startDateOfInSample).Days < inSampleDays)
+    {
+        break;
+    }
+    //find the closest friday
+    if (!Utilities.GetPreviousDayOfWeek(endDateOfInSample, firstAvailableDate, DayOfWeek.Friday, out endDateOfInSample))
+    {
+        break;
+    }
+    if (!Utilities.GetNextDayOfWeek(startDateOfInSample, lastAvailableDate, DayOfWeek.Sunday, out startDateOfInSample))
+    {
+        break;
+    }
+    
+
+} while (true);
+
+
 await Task.WhenAll(optimizationTasks);
 //sort allocations by date
 contractsAllocation.SortByDate();
