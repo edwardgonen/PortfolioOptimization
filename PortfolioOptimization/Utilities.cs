@@ -234,7 +234,8 @@ public abstract class DrawDown
             else dailyDrawdown[i] = Math.Min(0, totalDailyPnLs[i] + dailyDrawdown[i - 1]);
             if (dailyDrawdown[i] < maxDrawdown) maxDrawdown = dailyDrawdown[i];
         }
-        
+
+        if (maxDrawdown == 0) maxDrawdown = 1;
         return Math.Abs(maxDrawdown);
     }
 }
