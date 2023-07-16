@@ -11,6 +11,8 @@ bool bParallel = true;
 OptimizerContracts.GeneticAlgorithmType algorithmType =
     OptimizerContracts.GeneticAlgorithmType.GeneticSharp;
 
+OptimizerContracts.FitnessAlgorithm fitnessAlgorithm = OptimizerContracts.FitnessAlgorithm.Sharpe;
+
 switch (args.Length)
 {
     case 0:
@@ -112,8 +114,50 @@ switch (args.Length)
         else
             algorithmType = OptimizerContracts.GeneticAlgorithmType.GeneticSharp;
         break;
+    case 7:
+        inputFileName = args[0];
+        if (!int.TryParse(args[1], out inSampleDays))
+        {
+            Logger.Log("Wrong in sample length " + args[1]);
+            return -4;
+        }
+        if (!int.TryParse(args[2], out outSampleDays))
+        {
+            Logger.Log("Wrong out sample length " + args[2]);
+            return -4;
+        }
+        if (!int.TryParse(args[3], out contractsRangeStart))
+        {
+            Logger.Log("Wrong minimal contracts " + args[3]);
+            return -4;
+        }      
+        if (!int.TryParse(args[4], out contractsRangeEnd))
+        {
+            Logger.Log("Wrong max contracts " + args[4]);
+            return -4;
+        }
+
+        if (args[5].ToUpper().StartsWith("T"))
+            algorithmType = OptimizerContracts.GeneticAlgorithmType.GeneticSharp;
+        else if (args[5].ToUpper().StartsWith("R")) 
+            algorithmType = OptimizerContracts.GeneticAlgorithmType.Random;
+        else if (args[5].ToUpper().StartsWith("G"))
+            algorithmType = OptimizerContracts.GeneticAlgorithmType.GradientDescent;
+        else
+            algorithmType = OptimizerContracts.GeneticAlgorithmType.GeneticSharp;
+
+
+        if (args[6].ToUpper().StartsWith("PD"))
+            fitnessAlgorithm = OptimizerContracts.FitnessAlgorithm.ProfitByDrawdown;
+        else if (args[6].ToUpper().StartsWith("LI"))
+            fitnessAlgorithm = OptimizerContracts.FitnessAlgorithm.Linearity;
+        else
+            fitnessAlgorithm = OptimizerContracts.FitnessAlgorithm.Sharpe;
+        
+        
+        break;
     default:
-        Logger.Log("Wrong number of parameters. Usage <input data file> <in sample length> <out sample length>");
+        Logger.Log("Wrong number of parameters. Usage <input data file> <in sample length> <out sample length> <T/G/R> <PD/SH/LI>");
         return -2;
 }
 
@@ -128,7 +172,7 @@ Logger.Log("Using " + inputFileName + " InSample length " + inSampleDays + " Out
 
 Logger.Log("Reading input data");
 var dataHolder = new DataHolder(inputFileName);
-var optimizer = new OptimizerContracts(algorithmType);
+var optimizer = new OptimizerContracts(algorithmType, fitnessAlgorithm);
 var strategyList = dataHolder.StrategyList;
 
 Logger.Log("Loaded " + strategyList.Count + " strategies and " + dataHolder.InitialData.Count + " data points");
@@ -138,7 +182,6 @@ Logger.Log("Loaded " + strategyList.Count + " strategies and " + dataHolder.Init
 //1. get the first point as start + in sample days
 DateTime firstAvailableDate = dataHolder.InitialData[0].Date;
 DateTime lastAvailableDate = dataHolder.InitialData.Last().Date;
-DateTime startDateOfInSample = firstAvailableDate;
 DateTime endDateOfInSample = firstAvailableDate.AddDays(inSampleDays);
 Logger.Log("First available date is " + firstAvailableDate + ". Last available date is " + lastAvailableDate);
 if (endDateOfInSample >= lastAvailableDate)
@@ -164,7 +207,7 @@ if (!Utilities.GetPreviousDayOfWeek(lastAvailableDate, firstAvailableDate, DayOf
 //here the end date of in sample is the last Friday
 //1.2 calculate first day of insample
 //it is prev monday before (end - length of insample)
-if (!Utilities.GetNextDayOfWeek(endDateOfInSample.AddDays(-inSampleDays), lastAvailableDate, DayOfWeek.Sunday, out startDateOfInSample))
+if (!Utilities.GetNextDayOfWeek(endDateOfInSample.AddDays(-inSampleDays), lastAvailableDate, DayOfWeek.Sunday, out var startDateOfInSample))
 {
     throw new MyException("Could not find next Monday before " + firstAvailableDate);
 }

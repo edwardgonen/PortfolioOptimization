@@ -3,8 +3,10 @@ namespace PortfolioOptimization;
 public class OptimizerContracts
 {
     private readonly GeneticAlgorithmType _algorithmType;
-    public OptimizerContracts(GeneticAlgorithmType algorithmType)
+    private readonly FitnessAlgorithm _fitnessAlgorithm;
+    public OptimizerContracts(GeneticAlgorithmType algorithmType, FitnessAlgorithm fitnessAlgorithm)
     {
+        _fitnessAlgorithm = fitnessAlgorithm;
         _algorithmType = algorithmType;
     }
 
@@ -17,7 +19,7 @@ public class OptimizerContracts
         switch (_algorithmType)
         {
             case GeneticAlgorithmType.GeneticSharp:
-                gsa = new OptimizationSharpAlgorithm(strategyList.Count, currentData, contractsRangeStart, contractsRangeEnd);
+                gsa = new OptimizationSharpAlgorithm(strategyList.Count, currentData, contractsRangeStart, contractsRangeEnd, _fitnessAlgorithm);
                 break;
             case GeneticAlgorithmType.Random:
                 gsa = new RandomAlgorithm(strategyList.Count, currentData, contractsRangeStart, contractsRangeEnd);
@@ -48,5 +50,12 @@ public class OptimizerContracts
         GeneticSharp,
         Random,
         GradientDescent
+    }
+
+    public enum FitnessAlgorithm
+    {
+        Sharpe,
+        Linearity,
+        ProfitByDrawdown
     }
 }

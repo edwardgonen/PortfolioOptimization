@@ -5,10 +5,12 @@ namespace PortfolioOptimization;
 public class OptimizationSharpAlgorithm : IOptimizationAlgorithm
 {
     private readonly GeneticAlgorithm _ga;
-    public OptimizationSharpAlgorithm(int numberOfStrategies, DataHolder dataHolder, int minValue, int maxValue)
+    private readonly OptimizerContracts.FitnessAlgorithm _fitnessAlgorithm;
+    public OptimizationSharpAlgorithm(int numberOfStrategies, DataHolder dataHolder, int minValue, int maxValue, OptimizerContracts.FitnessAlgorithm fitnessAlgorithm)
     {
+        _fitnessAlgorithm = fitnessAlgorithm;
         var targetArray = new int[numberOfStrategies];
-        var fitness = new ArrayFitness(dataHolder, targetArray);
+        var fitness = new ArrayFitness(dataHolder, targetArray, _fitnessAlgorithm);
         //var chromosome = new IntegerChromosome(minValue, maxValue);
         
         //for floating point chromosome
@@ -73,10 +75,12 @@ public class OptimizationSharpAlgorithm : IOptimizationAlgorithm
 public class ArrayFitness : IFitness
 {
     private readonly DataHolder _initialDataHolder;
-    private readonly int[] _targetArray; 
+    private readonly int[] _targetArray;
+    private readonly OptimizerContracts.FitnessAlgorithm _fitnessAlgorithm;
 
-    public ArrayFitness(DataHolder initialDataHolder, int[] targetArray)
+    public ArrayFitness(DataHolder initialDataHolder, int[] targetArray, OptimizerContracts.FitnessAlgorithm fitnessAlgorithm)
     {
+        _fitnessAlgorithm = fitnessAlgorithm;
         _initialDataHolder = initialDataHolder;
         _targetArray = targetArray;
     }
@@ -89,15 +93,21 @@ public class ArrayFitness : IFitness
         {
             _targetArray[i] = (int)doubleValues[i];
         }
-        //double evaluationValue = Sharpe.CalculateSharpeForOnePermutation(_targetArray, _initialDataHolder);
-        
-        //double evaluationValue = Linearity.CalculateLinearityForOnePermutation(_targetArray, _initialDataHolder);
-        
-        double evaluationValue = Profit.CalculateProfitForOnePermutation(_targetArray, _initialDataHolder);
-        evaluationValue /= DrawDown.CalculateMaxDrawdownForOnePermutation(_targetArray, _initialDataHolder);
-        
-        //double evaluationValue = Linearity.CalculateLinearityForOnePermutation(_targetArray, _initialDataHolder) * Profit.CalculateProfitForOnePermutation(_targetArray, _initialDataHolder);
-        
+
+        double evaluationValue = double.MinValue;
+        switch (_fitnessAlgorithm)
+        {
+            case OptimizerContracts.FitnessAlgorithm.Linearity:
+                evaluationValue = Linearity.CalculateLinearityForOnePermutation(_targetArray, _initialDataHolder);
+                break;
+            case OptimizerContracts.FitnessAlgorithm.ProfitByDrawdown:
+                evaluationValue = Profit.CalculateProfitForOnePermutation(_targetArray, _initialDataHolder);
+                evaluationValue /= DrawDown.CalculateMaxDrawdownForOnePermutation(_targetArray, _initialDataHolder);
+                break;
+            default:
+                evaluationValue = Sharpe.CalculateSharpeForOnePermutation(_targetArray, _initialDataHolder);
+                break;
+        }
         return evaluationValue;
     }
 }
