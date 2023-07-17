@@ -28,6 +28,8 @@ public class DataHolder
 
         for (var i = 1; i < readText.Length; i++)
         {
+            if (string.IsNullOrWhiteSpace(readText[i])) continue;
+            
             var lineParts = readText[i].Split(',');
 
             //first part in the line is date

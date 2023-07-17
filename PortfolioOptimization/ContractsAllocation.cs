@@ -5,9 +5,9 @@ namespace PortfolioOptimization;
 public class ContractsAllocation
 {
     private readonly Dictionary<string, List<AllocationPerDate>> _contractAllocationsDictionary = new Dictionary<string, List<AllocationPerDate>>();
-    private readonly string _contractAllocationFileName;
+    private string _contractAllocationFileName;
 
-    public ContractsAllocation(string dataPath)
+    public ContractsAllocation(string? dataPath)
     {
         _contractAllocationFileName = dataPath + Path.DirectorySeparatorChar + "ContractsAllocation.csv";
     }
@@ -64,6 +64,55 @@ public class ContractsAllocation
         }
     }
 
+    public static ContractsAllocation LoadFromFile(string allocationFileName)
+    {
+        ContractsAllocation contractsAllocation = new ContractsAllocation(Path.GetDirectoryName(allocationFileName));
+
+        
+        //0. read the input file
+        var readText = File.ReadAllLines(allocationFileName);
+        if (readText.Length < 2) throw new MyException("Input file is less than 2 lines");
+
+        //1. first line is a list of dates
+        
+        string[] parts = readText[0].Split(',');
+        if (parts.Length <= 1) //wrong format
+        {
+            throw new MyException("Failed to load contract allocation file. Wrong first line " + readText[0]);
+        }
+
+        List<DateTime> dates = new List<DateTime>();
+        for (var i = 1; i < parts.Length; i++)
+        {
+            if (!DateTime.TryParse(parts[i], out var date))
+            {
+                throw new MyException("Failed to load contract allocation file. Wrong date " + parts[i]);
+            }
+            //add to list 
+            dates.Add(date);
+        }
+
+        for (var i = 1; i < readText.Length; i++)
+        {
+            parts = readText[i].Split(','); //<strategy name, allocation1, allocation2 ...>
+            for (var j = 1; j < parts.Length; j++)
+            {
+                if (!double.TryParse(parts[j], out var allocation))
+                {
+                    throw new MyException("Failed to convert allocation size in line " + i + " position " + j);
+                }
+                contractsAllocation.AddAllocation(dates[j - 1], parts[0], allocation);
+            }
+        }
+        
+        return contractsAllocation;
+    }
+
+    public void SaveToFile(string contractAllocationFileName)
+    {
+        _contractAllocationFileName = contractAllocationFileName;
+        SaveToFile();
+    }
     public void SaveToFile()
     {
         lock (_contractAllocationsDictionary)
