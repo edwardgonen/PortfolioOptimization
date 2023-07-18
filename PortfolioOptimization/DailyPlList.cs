@@ -1,3 +1,5 @@
+using System.Runtime.InteropServices.JavaScript;
+
 namespace PortfolioOptimization;
 
 public class DailyPlList
@@ -41,6 +43,17 @@ public class DailyPlList
         using StreamWriter outputFile = new StreamWriter(parametersDailyPlFileName);
         //write strategies line
         outputFile.WriteLine("date," + string.Join(",", StrategiesList));
+        
+        foreach (var t in _allStrategiesPnl)
+        {
+            List<double> dailyPnls = new List<double>();
+            foreach (var strategy in StrategiesList)
+            {
+                var pnl = t.GetStrategyPnl(strategy);
+                dailyPnls.Add(pnl);
+            }
+            outputFile.WriteLine(t.Date.ToShortDateString() + "," + string.Join(",", dailyPnls));
+        }
     }
     private class DailyRowAllStrategies
     {
@@ -60,6 +73,13 @@ public class DailyPlList
             {
                 strategyItem.Pnl += dailyRowOneStrategy.Pnl;
             }
+        }
+
+        public double GetStrategyPnl(string strategyName)
+        {
+            var strategyWithPnl = _allStrategiesPnl.Find(x => x.Name == strategyName);
+            if (strategyWithPnl == default) return 0;
+            return strategyWithPnl.Pnl;
         }
     }
 
