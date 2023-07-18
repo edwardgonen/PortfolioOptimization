@@ -5,12 +5,11 @@ namespace PortfolioOptimization;
 public class OptimizationSharpAlgorithm : IOptimizationAlgorithm
 {
     private readonly GeneticAlgorithm _ga;
-    private readonly OptimizerContracts.FitnessAlgorithm _fitnessAlgorithm;
+
     public OptimizationSharpAlgorithm(int numberOfStrategies, DataHolder dataHolder, int minValue, int maxValue, OptimizerContracts.FitnessAlgorithm fitnessAlgorithm)
     {
-        _fitnessAlgorithm = fitnessAlgorithm;
         var targetArray = new int[numberOfStrategies];
-        var fitness = new ArrayFitness(dataHolder, targetArray, _fitnessAlgorithm);
+        var fitness = new ArrayFitness(dataHolder, targetArray, fitnessAlgorithm);
         //var chromosome = new IntegerChromosome(minValue, maxValue);
         
         //for floating point chromosome
@@ -32,9 +31,7 @@ public class OptimizationSharpAlgorithm : IOptimizationAlgorithm
             maximums,
             digits,
             fractions);
-        
-        //var chromosome = new FloatingPointChromosome(mins, maxValue, 1); 
-        
+
         var population = new Population(1000, 1000, chromosome);
         var selection = new EliteSelection();
         var crossover = new UniformCrossover();
@@ -94,7 +91,7 @@ public class ArrayFitness : IFitness
             _targetArray[i] = (int)doubleValues[i];
         }
 
-        double evaluationValue = double.MinValue;
+        double evaluationValue;
         switch (_fitnessAlgorithm)
         {
             case OptimizerContracts.FitnessAlgorithm.Linearity:

@@ -3,11 +3,11 @@ namespace PortfolioOptimization;
 public class RandomAlgorithm : IOptimizationAlgorithm
 {
     private readonly Random _random;
-    private int _minValue;
-    private int _maxValue;
-    private int _numberOfStrategies;
+    private readonly int _minValue;
+    private readonly int _maxValue;
+    private readonly int _numberOfStrategies;
 
-    public RandomAlgorithm(int numberOfStrategies, DataHolder dataHolder, int minValue, int maxValue)
+    public RandomAlgorithm(int numberOfStrategies, int minValue, int maxValue)
     {
         _random = new Random();
         _numberOfStrategies = numberOfStrategies;

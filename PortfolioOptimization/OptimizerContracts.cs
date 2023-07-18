@@ -22,7 +22,7 @@ public class OptimizerContracts
                 gsa = new OptimizationSharpAlgorithm(strategyList.Count, currentData, contractsRangeStart, contractsRangeEnd, _fitnessAlgorithm);
                 break;
             case GeneticAlgorithmType.Random:
-                gsa = new RandomAlgorithm(strategyList.Count, currentData, contractsRangeStart, contractsRangeEnd);
+                gsa = new RandomAlgorithm(strategyList.Count, contractsRangeStart, contractsRangeEnd);
                 break;
             case GeneticAlgorithmType.GradientDescent:
                 gsa = new MyGradientDescentOptimizationAlgorithm(strategyList.Count, currentData, contractsRangeStart, contractsRangeEnd);

@@ -5,7 +5,7 @@ public class DataHolder
     public List<Row> InitialData { get; private set; } = new();
     public List<string> StrategyList { get; } = new();
 
-    public DataHolder()
+    private DataHolder()
     {
     }
     public DataHolder(string inputFileName)
