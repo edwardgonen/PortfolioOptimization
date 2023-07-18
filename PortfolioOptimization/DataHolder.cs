@@ -59,6 +59,11 @@ public class DataHolder
 
     }
 
+    public void AddRow(DateTime date, double[] dailyAccumulatedPnlByStrategy)
+    {
+        
+    }
+
     public DataHolder GetRangeOfData(DateTime startDate, DateTime endDate)
     {
         DataHolder result = new DataHolder();

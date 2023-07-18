@@ -2,104 +2,102 @@
 
 using PortfolioOptimization;       
 
-int contractsRangeStart = 1;
-int contractsRangeEnd = 30;
-string inputFileName = "../../../../data/Strategy_DailyPL.csv";
-int inSampleDays = 300;
-int outSampleDays = 30;
-bool bParallel = true;
+
+
 OptimizerContracts.GeneticAlgorithmType algorithmType =
     OptimizerContracts.GeneticAlgorithmType.GeneticSharp;
 
 OptimizerContracts.FitnessAlgorithm fitnessAlgorithm = OptimizerContracts.FitnessAlgorithm.Sharpe;
+
+Parameters parameters = Parameters.Load("Parameters.xml") ?? new Parameters();
 
 switch (args.Length)
 {
     case 0:
         break;       
     case 1:
-        inputFileName = args[0];
+        parameters.DailyPlFileName = args[0];
         break;
     case 2:
-        inputFileName = args[0];
-        if (!int.TryParse(args[1], out inSampleDays))
+        parameters.DailyPlFileName = args[0];
+        if (!int.TryParse(args[1], out parameters.InSampleDays))
         {
             Logger.Log("Wrong in sample length " + args[1]);
             return -3;
         }
         break;
     case 3:
-        inputFileName = args[0];
-        if (!int.TryParse(args[1], out inSampleDays))
+        parameters.DailyPlFileName = args[0];
+        if (!int.TryParse(args[1], out parameters.InSampleDays))
         {
             Logger.Log("Wrong in sample length " + args[1]);
             return -4;
         }
-        if (!int.TryParse(args[2], out outSampleDays))
+        if (!int.TryParse(args[2], out parameters.OutSampleDays))
         {
             Logger.Log("Wrong out sample length " + args[2]);
             return -4;
         }
         break;
     case 4:
-        inputFileName = args[0];
-        if (!int.TryParse(args[1], out inSampleDays))
+        parameters.DailyPlFileName = args[0];
+        if (!int.TryParse(args[1], out parameters.InSampleDays))
         {
             Logger.Log("Wrong in sample length " + args[1]);
             return -4;
         }
-        if (!int.TryParse(args[2], out outSampleDays))
+        if (!int.TryParse(args[2], out parameters.OutSampleDays))
         {
             Logger.Log("Wrong out sample length " + args[2]);
             return -4;
         }
-        if (!int.TryParse(args[3], out contractsRangeStart))
+        if (!int.TryParse(args[3], out parameters.ContractsRangeStart))
         {
             Logger.Log("Wrong minimal contracts " + args[3]);
             return -4;
         }        
         break;
     case 5:
-        inputFileName = args[0];
-        if (!int.TryParse(args[1], out inSampleDays))
+        parameters.DailyPlFileName = args[0];
+        if (!int.TryParse(args[1], out parameters.InSampleDays))
         {
             Logger.Log("Wrong in sample length " + args[1]);
             return -4;
         }
-        if (!int.TryParse(args[2], out outSampleDays))
+        if (!int.TryParse(args[2], out parameters.OutSampleDays))
         {
             Logger.Log("Wrong out sample length " + args[2]);
             return -4;
         }
-        if (!int.TryParse(args[3], out contractsRangeStart))
+        if (!int.TryParse(args[3], out parameters.ContractsRangeStart))
         {
             Logger.Log("Wrong minimal contracts " + args[3]);
             return -4;
         }      
-        if (!int.TryParse(args[4], out contractsRangeEnd))
+        if (!int.TryParse(args[4], out parameters.ContractsRangeEnd))
         {
             Logger.Log("Wrong max contracts " + args[4]);
             return -4;
         }  
         break;
     case 6:
-        inputFileName = args[0];
-        if (!int.TryParse(args[1], out inSampleDays))
+        parameters.DailyPlFileName = args[0];
+        if (!int.TryParse(args[1], out parameters.InSampleDays))
         {
             Logger.Log("Wrong in sample length " + args[1]);
             return -4;
         }
-        if (!int.TryParse(args[2], out outSampleDays))
+        if (!int.TryParse(args[2], out parameters.OutSampleDays))
         {
             Logger.Log("Wrong out sample length " + args[2]);
             return -4;
         }
-        if (!int.TryParse(args[3], out contractsRangeStart))
+        if (!int.TryParse(args[3], out parameters.ContractsRangeStart))
         {
             Logger.Log("Wrong minimal contracts " + args[3]);
             return -4;
         }      
-        if (!int.TryParse(args[4], out contractsRangeEnd))
+        if (!int.TryParse(args[4], out parameters.ContractsRangeEnd))
         {
             Logger.Log("Wrong max contracts " + args[4]);
             return -4;
@@ -115,23 +113,23 @@ switch (args.Length)
             algorithmType = OptimizerContracts.GeneticAlgorithmType.GeneticSharp;
         break;
     case 7:
-        inputFileName = args[0];
-        if (!int.TryParse(args[1], out inSampleDays))
+        parameters.DailyPlFileName = args[0];
+        if (!int.TryParse(args[1], out parameters.InSampleDays))
         {
             Logger.Log("Wrong in sample length " + args[1]);
             return -4;
         }
-        if (!int.TryParse(args[2], out outSampleDays))
+        if (!int.TryParse(args[2], out parameters.OutSampleDays))
         {
             Logger.Log("Wrong out sample length " + args[2]);
             return -4;
         }
-        if (!int.TryParse(args[3], out contractsRangeStart))
+        if (!int.TryParse(args[3], out parameters.ContractsRangeStart))
         {
             Logger.Log("Wrong minimal contracts " + args[3]);
             return -4;
         }      
-        if (!int.TryParse(args[4], out contractsRangeEnd))
+        if (!int.TryParse(args[4], out parameters.ContractsRangeEnd))
         {
             Logger.Log("Wrong max contracts " + args[4]);
             return -4;
@@ -161,17 +159,27 @@ switch (args.Length)
         return -2;
 }
 
-string? dataFolder = Path.GetDirectoryName(inputFileName);
+
+if (parameters.BRealTime)
+{
+    DailyPlList allPnls = Utilities.GetAllDailyPnlFromTradeCompletionLog(parameters.TradeCompletionFileName, parameters.NumberOfLinesToReadFromTheEndOfTradesLog);
+    //save to file
+    allPnls.SaveToFile(parameters.DailyPlFileName);
+
+}
+
+
+string? dataFolder = Path.GetDirectoryName(parameters.DailyPlFileName);
 if (dataFolder == null)
 {
-    Logger.Log("Wrong data folder in name " + inputFileName);
+    Logger.Log("Wrong data folder in name " + parameters.DailyPlFileName);
     return -6;
 }
 
-Logger.Log("Using " + inputFileName + " InSample length " + inSampleDays + " OutSample length " + outSampleDays);
+Logger.Log("Using " + parameters.DailyPlFileName + " InSample length " + parameters.InSampleDays + " OutSample length " + parameters.OutSampleDays);
 
 Logger.Log("Reading input data");
-var dataHolder = new DataHolder(inputFileName);
+var dataHolder = new DataHolder(parameters.DailyPlFileName);
 var optimizer = new OptimizerContracts(algorithmType, fitnessAlgorithm);
 var strategyList = dataHolder.StrategyList;
 
@@ -182,7 +190,7 @@ Logger.Log("Loaded " + strategyList.Count + " strategies and " + dataHolder.Init
 //1. get the first point as start + in sample days
 DateTime firstAvailableDate = dataHolder.InitialData[0].Date;
 DateTime lastAvailableDate = dataHolder.InitialData.Last().Date;
-DateTime endDateOfInSample = firstAvailableDate.AddDays(inSampleDays);
+DateTime endDateOfInSample = firstAvailableDate.AddDays(parameters.InSampleDays);
 Logger.Log("First available date is " + firstAvailableDate + ". Last available date is " + lastAvailableDate);
 if (endDateOfInSample >= lastAvailableDate)
 {
@@ -207,7 +215,7 @@ if (!Utilities.GetPreviousDayOfWeek(lastAvailableDate, firstAvailableDate, DayOf
 //here the end date of in sample is the last Friday
 //1.2 calculate first day of insample
 //it is prev monday before (end - length of insample)
-if (!Utilities.GetNextDayOfWeek(endDateOfInSample.AddDays(-inSampleDays), lastAvailableDate, DayOfWeek.Sunday, out var startDateOfInSample))
+if (!Utilities.GetNextDayOfWeek(endDateOfInSample.AddDays(-parameters.InSampleDays), lastAvailableDate, DayOfWeek.Sunday, out var startDateOfInSample))
 {
     throw new MyException("Could not find next Monday before " + firstAvailableDate);
 }
@@ -220,27 +228,27 @@ do
     var tokenSource = new CancellationTokenSource();
     var token = tokenSource.Token;
 
-    if (!bParallel)
+    if (!parameters.BParallel)
     {
-        optimizer.OptimizeAndUpdate(currentData, strategyList, contractsAllocation, contractsRangeStart,
-            contractsRangeEnd);
+        optimizer.OptimizeAndUpdate(currentData, strategyList, contractsAllocation, parameters.ContractsRangeStart,
+            parameters.ContractsRangeEnd);
     }
     else
     {
         optimizationTasks.Add(Task.Factory.StartNew(() =>
             {
-                optimizer.OptimizeAndUpdate(currentData, strategyList, contractsAllocation, contractsRangeStart,
-                    contractsRangeEnd);
+                optimizer.OptimizeAndUpdate(currentData, strategyList, contractsAllocation, parameters.ContractsRangeStart,
+                    parameters.ContractsRangeEnd);
             }
             , token));
     }
     
     //move back to the previous chunk by outSampleLength
-    endDateOfInSample = endDateOfInSample.AddDays(-outSampleDays);
-    startDateOfInSample = endDateOfInSample.AddDays(-inSampleDays);
+    endDateOfInSample = endDateOfInSample.AddDays(-parameters.OutSampleDays);
+    startDateOfInSample = endDateOfInSample.AddDays(-parameters.InSampleDays);
     if (startDateOfInSample < firstAvailableDate) startDateOfInSample = firstAvailableDate;
     
-    if ((endDateOfInSample - startDateOfInSample).Days < inSampleDays)
+    if ((endDateOfInSample - startDateOfInSample).Days < parameters.InSampleDays)
     {
         break;
     }
