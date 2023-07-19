@@ -162,9 +162,10 @@ switch (args.Length)
 
 if (parameters.BRealTime)
 {
-    DailyPlList allPnls = Utilities.GetAllDailyPnlFromTradeCompletionLog(parameters.TradeCompletionFileName, parameters.NumberOfLinesToReadFromTheEndOfTradesLog);
+    DailyPlList allPnls = DailyPlList.LoadFromTradeCompletionLog(parameters.TradeCompletionFileName, parameters.NumberOfLinesToReadFromTheEndOfTradesLog);
     //save to file
-    allPnls.SaveToFile(parameters.DailyPlFileName);
+    allPnls.SaveToFile(parameters.DailyPlFileName, parameters.StrategyMaxInactivityDays);
+
 
 }
 
@@ -279,7 +280,7 @@ foreach (var row in accumulatedProfit)
 }
 
 //save to allocation file
-contractsAllocation.SaveToFile();
+contractsAllocation.SaveToFile(parameters.BRealTime, parameters.ContractsAllocationFileName);
 
 return 0;
 

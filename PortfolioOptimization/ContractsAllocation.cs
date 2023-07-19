@@ -108,37 +108,43 @@ public class ContractsAllocation
         return contractsAllocation;
     }
 
-    public void SaveToFile(string contractAllocationFileName)
+
+    public void SaveToFile(bool bRealTime, string contractsAllocationFileName)
     {
-        _contractAllocationFileName = contractAllocationFileName;
-        SaveToFile();
-    }
-    public void SaveToFile()
-    {
-        lock (_contractAllocationsDictionary)
+        if (!bRealTime)
         {
-            using StreamWriter outputFile = new StreamWriter(_contractAllocationFileName);
-
-            string[] parts = new string [_contractAllocationsDictionary.First().Value.Count + 1];
-            parts[0] = "Project name and time segments";
-            for (var i = 0; i < _contractAllocationsDictionary.First().Value.Count; i++)
+            lock (_contractAllocationsDictionary)
             {
-                parts[i + 1] = _contractAllocationsDictionary.First().Value[i].AllocationStartDate.ToShortDateString();
-            }
+                using StreamWriter outputFile = new StreamWriter(_contractAllocationFileName);
 
-            outputFile.WriteLine(string.Join(",", parts));
-            
-            foreach (var pair in _contractAllocationsDictionary)
-            {
-                parts = new string [_contractAllocationsDictionary.First().Value.Count + 1];
-                parts[0] = pair.Key;
-                for (var i = 0; i < pair.Value.Count; i++)
+                string[] parts = new string [_contractAllocationsDictionary.First().Value.Count + 1];
+                parts[0] = "Project name and time segments";
+                for (var i = 0; i < _contractAllocationsDictionary.First().Value.Count; i++)
                 {
-                    parts[i + 1] = pair.Value[i].NumberOfContracts.ToString(CultureInfo.CurrentCulture);
+                    parts[i + 1] = _contractAllocationsDictionary.First().Value[i].AllocationStartDate
+                        .ToShortDateString();
                 }
-                outputFile.WriteLine(string.Join(",", parts));
-            }
 
+                outputFile.WriteLine(string.Join(",", parts));
+
+                foreach (var pair in _contractAllocationsDictionary)
+                {
+                    parts = new string [_contractAllocationsDictionary.First().Value.Count + 1];
+                    parts[0] = pair.Key;
+                    for (var i = 0; i < pair.Value.Count; i++)
+                    {
+                        parts[i + 1] = pair.Value[i].NumberOfContracts.ToString(CultureInfo.CurrentCulture);
+                    }
+
+                    outputFile.WriteLine(string.Join(",", parts));
+                }
+
+            }
+        }
+        else //real time
+        {
+            //1. read existing contracts allocation
+            ContractsAllocation contractsAllocation = ContractsAllocation.LoadFromFile(contractsAllocationFileName);
         }
     }
 

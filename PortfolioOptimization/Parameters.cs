@@ -9,11 +9,13 @@ public class Parameters
     public int ContractsRangeEnd = 10;
     public string DailyPlFileName = string.Empty;
     public string TradeCompletionFileName = string.Empty;
+    public string ContractsAllocationFileName = string.Empty;
     public int InSampleDays = 300;
     public int OutSampleDays = 11;
     public bool BParallel = true;
     public bool BRealTime = true;
     public int NumberOfLinesToReadFromTheEndOfTradesLog = 10000;
+    public int StrategyMaxInactivityDays = 30;
     
     public static Parameters? Load(string fileName)
     {

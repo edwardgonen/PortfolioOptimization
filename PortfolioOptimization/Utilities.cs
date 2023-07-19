@@ -60,43 +60,7 @@ public static class Utilities
         throw new MyException("Previous " + soughtDay + " was not found");
     }
 
-    public static DailyPlList GetAllDailyPnlFromTradeCompletionLog(string parametersTradeCompletionFileName, int numOfLastLinesToRead)
-    {
-        DailyPlList result = new DailyPlList();
-        //read the trade completion log
-        var readText = File.ReadAllLines(parametersTradeCompletionFileName);
-        var allLines = readText.Skip(Math.Max(0, readText.Count() - numOfLastLinesToRead));
 
-        foreach (var line in allLines)
-        {
-            //parse
-            string[] parts = line.Split(",");
-            if (parts.Length != 15)
-            {
-                throw new MyException("Line in TradeCompletionLog file is wrong - not 15 elements " + line);
-            }
-
-            string strategyName = parts[10];
-            
-            //[6] is close date, [9] - strategy name, [11] PL
-            if (!DateTime.TryParse(parts[6], out var closedDate))
-            {
-                throw new MyException("Wrong closed date in TradeCompletionLog file " + parts[6]);
-            }
-            closedDate = closedDate.Date;
-
-            if (!double.TryParse(parts[11], out var tradePnl))
-            {
-                throw new MyException("Wrong PnL in TradeCompletionLog file " + parts[11]);
-            }
-
-            result.AddTradePnlForDate(closedDate, strategyName, tradePnl);
-        }
-
-        //sort alphabetically
-        result.StrategiesList.Sort();
-        return result;
-    }
 }
 
 public abstract class Profit
