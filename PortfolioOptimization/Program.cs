@@ -199,7 +199,7 @@ if (endDateOfInSample >= lastAvailableDate)
 }
 
 
-var contractsAllocation = new ContractsAllocation(dataFolder);
+var contractsAllocation = new ContractsAllocation();
 
 List<Task> optimizationTasks = new List<Task>();
 

@@ -4,13 +4,7 @@ namespace PortfolioOptimization;
 
 public class ContractsAllocation
 {
-    private Dictionary<string, List<AllocationPerDate>> _contractAllocationsDictionary = new Dictionary<string, List<AllocationPerDate>>();
-    private readonly string _contractAllocationFileName;
-
-    public ContractsAllocation(string? dataPath)
-    {
-        _contractAllocationFileName = dataPath + Path.DirectorySeparatorChar + "ContractsAllocation.csv";
-    }
+    private Dictionary<string, List<AllocationPerDate>> _contractAllocationsDictionary = new();
 
     private IEnumerable<string> GetAllStrategies()
     {
@@ -82,7 +76,7 @@ public class ContractsAllocation
 
     private static ContractsAllocation LoadFromFile(string allocationFileName)
     {
-        ContractsAllocation contractsAllocation = new ContractsAllocation(Path.GetDirectoryName(allocationFileName));
+        ContractsAllocation contractsAllocation = new ContractsAllocation();
 
         
         //0. read the input file
@@ -125,7 +119,7 @@ public class ContractsAllocation
     }
 
 
-    public void SaveToFile(bool bRealTime, string contractsAllocationFileName, int multiplicationFactor )
+    public void SaveToFile(bool bRealTime, string contractsAllocationFileName, double multiplicationFactor)
     {
         if (bRealTime)
         {
@@ -153,6 +147,11 @@ public class ContractsAllocation
                 {
                     //get last entry in the new allocation for existing strategy
                     AllocationPerDate newAllocation = _contractAllocationsDictionary[strategyName].Last();
+                    if (bRealTime)
+                    {
+                        if (newAllocation.NumberOfContracts > 1)
+                            newAllocation.NumberOfContracts *= multiplicationFactor;
+                    }
                     previousContractsAllocation.AddAllocation(newAllocation.AllocationStartDate, strategyName, newAllocation.NumberOfContracts);
                 }
                 //add new ones with zeros at the historical places
@@ -163,6 +162,11 @@ public class ContractsAllocation
                     foreach (var allocation in exemplaryStrategyAllocations)
                     {
                         previousContractsAllocation.AddAllocation(allocation.AllocationStartDate, strategyName, 0);
+                    }
+                    if (bRealTime)
+                    {
+                        if (newAllocation.NumberOfContracts > 1)
+                            newAllocation.NumberOfContracts *= multiplicationFactor;
                     }
                     previousContractsAllocation.AddAllocation(newAllocation.AllocationStartDate, strategyName, newAllocation.NumberOfContracts);
                 }
@@ -180,7 +184,7 @@ public class ContractsAllocation
         //save to file
         lock (_contractAllocationsDictionary)
         {
-            using StreamWriter outputFile = new StreamWriter(_contractAllocationFileName);
+            using StreamWriter outputFile = new StreamWriter(contractsAllocationFileName);
 
             string[] parts = new string [_contractAllocationsDictionary.First().Value.Count + 1];
             parts[0] = "Project name and time segments";
@@ -199,7 +203,6 @@ public class ContractsAllocation
                 for (var i = 0; i < pair.Value.Count; i++)
                 {
                     double numberOfContracts = pair.Value[i].NumberOfContracts;
-                    if (numberOfContracts > 1) numberOfContracts *= numberOfContracts;
                     parts[i + 1] = numberOfContracts.ToString(CultureInfo.CurrentCulture);
                 }
 
