@@ -16,6 +16,7 @@ public class Parameters
     public bool BRealTime = true;
     public int NumberOfLinesToReadFromTheEndOfTradesLog = 10000;
     public int StrategyMaxInactivityDays = 30;
+    public int MultiplicationFactor = 3;
     
     public static Parameters? Load(string fileName)
     {

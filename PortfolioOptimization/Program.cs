@@ -1,8 +1,6 @@
 ﻿// See https://aka.ms/new-console-template for more information
 
-using PortfolioOptimization;       
-
-
+using PortfolioOptimization;
 
 OptimizerContracts.GeneticAlgorithmType algorithmType =
     OptimizerContracts.GeneticAlgorithmType.GeneticSharp;
@@ -159,14 +157,14 @@ switch (args.Length)
         return -2;
 }
 
+//if command line is used - we run in simulation mode
+if (args.Length > 0) parameters.BRealTime = false;
 
 if (parameters.BRealTime)
 {
     DailyPlList allPnls = DailyPlList.LoadFromTradeCompletionLog(parameters.TradeCompletionFileName, parameters.NumberOfLinesToReadFromTheEndOfTradesLog);
     //save to file
     allPnls.SaveToFile(parameters.DailyPlFileName, parameters.StrategyMaxInactivityDays);
-
-
 }
 
 
