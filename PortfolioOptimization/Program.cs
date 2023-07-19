@@ -278,7 +278,7 @@ foreach (var row in accumulatedProfit)
 }
 
 //save to allocation file
-contractsAllocation.SaveToFile(parameters.BRealTime, parameters.ContractsAllocationFileName);
+contractsAllocation.SaveToFile(parameters.BRealTime, parameters.ContractsAllocationFileName, parameters.MultiplicationFactor);
 
 return 0;
 
