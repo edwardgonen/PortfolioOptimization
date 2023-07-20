@@ -196,13 +196,15 @@ public class ContractsAllocation
 
             outputFile.WriteLine(string.Join(",", parts));
 
-            foreach (var pair in _contractAllocationsDictionary)
+            var listOfStrategies = _contractAllocationsDictionary.Keys.ToList();
+            listOfStrategies.Sort();
+            foreach (var strategy in listOfStrategies)
             {
                 parts = new string [_contractAllocationsDictionary.First().Value.Count + 1];
-                parts[0] = pair.Key;
-                for (var i = 0; i < pair.Value.Count; i++)
+                parts[0] = strategy;
+                for (var i = 0; i < _contractAllocationsDictionary[strategy].Count; i++)
                 {
-                    double numberOfContracts = pair.Value[i].NumberOfContracts;
+                    double numberOfContracts = _contractAllocationsDictionary[strategy][i].NumberOfContracts;
                     parts[i + 1] = numberOfContracts.ToString(CultureInfo.CurrentCulture);
                 }
 
