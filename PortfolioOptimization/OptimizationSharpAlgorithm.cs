@@ -101,6 +101,7 @@ public class ArrayFitness : IFitness
                 evaluationValue = Profit.CalculateProfitForOnePermutation(_targetArray, _initialDataHolder);
                 evaluationValue /= DrawDown.CalculateMaxDrawdownForOnePermutation(_targetArray, _initialDataHolder);
                 break;
+            case OptimizerContracts.FitnessAlgorithm.Sharpe:
             default:
                 evaluationValue = Sharpe.CalculateSharpeForOnePermutation(_targetArray, _initialDataHolder);
                 break;

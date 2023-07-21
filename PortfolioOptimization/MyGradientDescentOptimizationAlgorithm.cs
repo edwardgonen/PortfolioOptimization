@@ -15,7 +15,7 @@ public class MyGradientDescentOptimizationAlgorithm : IOptimizationAlgorithm
     private readonly int _minValue;
     private readonly int _maxValue;
     private readonly DataHolder _initialDataHolder;
-    private OptimizerContracts.FitnessAlgorithm _fitnessAlgorithm;
+    private readonly OptimizerContracts.FitnessAlgorithm _fitnessAlgorithm;
 
     public MyGradientDescentOptimizationAlgorithm(int numberOfStrategies, DataHolder dataHolder, int minValue,
         int maxValue, OptimizerContracts.FitnessAlgorithm fitnessAlgorithm)
@@ -97,10 +97,13 @@ public class MyGradientDescentOptimizationAlgorithm : IOptimizationAlgorithm
                 evaluationValue = Profit.CalculateProfitForOnePermutation(chromosome, _initialDataHolder);
                 evaluationValue /= DrawDown.CalculateMaxDrawdownForOnePermutation(chromosome, _initialDataHolder);
                 break;
+            case OptimizerContracts.FitnessAlgorithm.Sharpe:
             default:
                 evaluationValue = Sharpe.CalculateSharpeForOnePermutation(chromosome, _initialDataHolder);
                 break;
         }
+
+        _bestFitnessValue = evaluationValue;
         return evaluationValue;
     }
 }
