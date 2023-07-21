@@ -60,7 +60,28 @@ public static class Utilities
         throw new MyException("Previous " + soughtDay + " was not found");
     }
 
+    public static double CalculateStandardDeviation(double[] returns)
+    {
+        double average = CalculateAverage(returns);
+        double sumSquaredDiff = 0;
+        foreach (var ret in returns)
+        {
+            double diff = ret - average;
+            sumSquaredDiff += diff * diff;
+        }
+        double variance = sumSquaredDiff / returns.Length;
+        return Math.Sqrt(variance);
+    }
 
+    public static double CalculateAverage(double[] returns)
+    {
+        double sum = 0;
+        foreach (var ret in returns)
+        {
+            sum += ret;
+        }
+        return sum / returns.Length;
+    }
 }
 
 public abstract class Profit
@@ -128,32 +149,10 @@ public abstract class Linearity
             }
         }
 
-        double tmp = CalculateStandardDeviation(totalDailyPnLs);
+        double tmp = Utilities.CalculateStandardDeviation(totalDailyPnLs);
         
         if (tmp == 0) return double.PositiveInfinity;
         return 1 / tmp;
-    }
-    private static double CalculateAverage(double[] returns)
-    {
-        double sum = 0;
-        foreach (var ret in returns)
-        {
-            sum += ret;
-        }
-        return sum / returns.Length;
-    }
-
-    private static double CalculateStandardDeviation(double[] returns)
-    {
-        double average = CalculateAverage(returns);
-        double sumSquaredDiff = 0;
-        foreach (var ret in returns)
-        {
-            double diff = ret - average;
-            sumSquaredDiff += diff * diff;
-        }
-        double variance = sumSquaredDiff / returns.Length;
-        return Math.Sqrt(variance);
     }
 }
 public abstract class Sharpe
@@ -182,36 +181,14 @@ public abstract class Sharpe
 
     private static double CalculateSharpeRatio(double[] returns)
     {
-        double averageReturn = CalculateAverage(returns);
-        double standardDeviation = CalculateStandardDeviation(returns);
+        double averageReturn = Utilities.CalculateAverage(returns);
+        double standardDeviation = Utilities.CalculateStandardDeviation(returns);
 
         if (standardDeviation == 0) standardDeviation = 1;
         return averageReturn / standardDeviation * RiskFreeRate;
         
     }
 
-    private static double CalculateAverage(double[] returns)
-    {
-        double sum = 0;
-        foreach (var ret in returns)
-        {
-            sum += ret;
-        }
-        return sum / returns.Length;
-    }
-
-    private static double CalculateStandardDeviation(double[] returns)
-    {
-        double average = CalculateAverage(returns);
-        double sumSquaredDiff = 0;
-        foreach (var ret in returns)
-        {
-            double diff = ret - average;
-            sumSquaredDiff += diff * diff;
-        }
-        double variance = sumSquaredDiff / returns.Length;
-        return Math.Sqrt(variance);
-    }
 }
 public abstract class DrawDown
 {
