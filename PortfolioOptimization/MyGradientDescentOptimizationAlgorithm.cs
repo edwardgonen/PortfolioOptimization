@@ -9,24 +9,23 @@ public class MyGradientDescentOptimizationAlgorithm : IOptimizationAlgorithm
     private static readonly Random RandomGenerator = new Random();
     private readonly int _solutionArrayLength;
 
-    private const int MaxIterations = 1000;
+    private const int MaxIterations = 10000;
     private const double LearningRate = 0.1;
     
     private readonly int _minValue;
     private readonly int _maxValue;
     private readonly DataHolder _initialDataHolder;
+    private OptimizerContracts.FitnessAlgorithm _fitnessAlgorithm;
 
     public MyGradientDescentOptimizationAlgorithm(int numberOfStrategies, DataHolder dataHolder, int minValue,
-        int maxValue)
+        int maxValue, OptimizerContracts.FitnessAlgorithm fitnessAlgorithm)
     {
         this._solutionArrayLength = numberOfStrategies;
         this._minValue = minValue;
         this._maxValue = maxValue;
         _initialDataHolder = dataHolder;
         _finalSolution = new int[_solutionArrayLength];
-        
-        
-        
+        _fitnessAlgorithm = fitnessAlgorithm;
     }
     public void Start()
     {
@@ -88,13 +87,20 @@ public class MyGradientDescentOptimizationAlgorithm : IOptimizationAlgorithm
     }
     private double CalculateFitness(int[] chromosome)
     {
-        //double evaluationValue = Sharpe.CalculateSharpeForOnePermutation(_targetArray, _initialDataHolder);
-        //double evaluationValue = Linearity.CalculateLinearityForOnePermutation(_targetArray, _initialDataHolder);
-        double evaluationValue = Profit.CalculateProfitForOnePermutation(chromosome, _initialDataHolder);
-        evaluationValue = evaluationValue /
-                          DrawDown.CalculateMaxDrawdownForOnePermutation(chromosome, _initialDataHolder);
-        //double evaluationValue = Linearity.CalculateLinearityForOnePermutation(_targetArray, _initialDataHolder) * Profit.CalculateProfitForOnePermutation(_targetArray, _initialDataHolder);
-        _bestFitnessValue = evaluationValue;
+        double evaluationValue;
+        switch (_fitnessAlgorithm)
+        {
+            case OptimizerContracts.FitnessAlgorithm.Linearity:
+                evaluationValue = Linearity.CalculateLinearityForOnePermutation(chromosome, _initialDataHolder);
+                break;
+            case OptimizerContracts.FitnessAlgorithm.ProfitByDrawdown:
+                evaluationValue = Profit.CalculateProfitForOnePermutation(chromosome, _initialDataHolder);
+                evaluationValue /= DrawDown.CalculateMaxDrawdownForOnePermutation(chromosome, _initialDataHolder);
+                break;
+            default:
+                evaluationValue = Sharpe.CalculateSharpeForOnePermutation(chromosome, _initialDataHolder);
+                break;
+        }
         return evaluationValue;
     }
 }
