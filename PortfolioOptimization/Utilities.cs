@@ -82,6 +82,22 @@ public static class Utilities
         }
         return sum / returns.Length;
     }
+
+    public static double[] CalculateDailyPnls(int[] array, DataHolder initialDataHolder)
+    {
+        double[] totalDailyPnLs = new double[initialDataHolder.InitialData.Count];
+        
+        for (var j = 0; j < initialDataHolder.InitialData.Count; j++)
+        {
+            totalDailyPnLs[j] = 0;
+            for (var i = 0; i < array.Length; i++)
+            {
+                totalDailyPnLs[j] += initialDataHolder.InitialData[j].DailyAccumulatedPnlByStrategy[i] * array[i];
+            }
+        }
+
+        return totalDailyPnLs;
+    }
 }
 
 public abstract class Profit
@@ -138,17 +154,7 @@ public abstract class Linearity
 {
     public static double CalculateLinearityForOnePermutation(int[] array, DataHolder initialDataHolder)
     {
-        double[] totalDailyPnLs = new double[initialDataHolder.InitialData.Count];
-        
-        for (var j = 0; j < initialDataHolder.InitialData.Count; j++)
-        {
-            totalDailyPnLs[j] = 0;
-            for (var i = 0; i < array.Length; i++)
-            {
-                totalDailyPnLs[j] += initialDataHolder.InitialData[j].DailyAccumulatedPnlByStrategy[i] * array[i];
-            }
-        }
-
+        double[] totalDailyPnLs = Utilities.CalculateDailyPnls(array, initialDataHolder);
         double tmp = Utilities.CalculateStandardDeviation(totalDailyPnLs);
         
         if (tmp == 0) return double.PositiveInfinity;
@@ -162,17 +168,7 @@ public abstract class Sharpe
 
     public static double CalculateSharpeForOnePermutation(int[] array, DataHolder initialDataHolder)
     {
-        double[] totalDailyPnLs = new double[initialDataHolder.InitialData.Count];
-        
-        for (var j = 0; j < initialDataHolder.InitialData.Count; j++)
-        {
-            totalDailyPnLs[j] = 0;
-            for (var i = 0; i < array.Length; i++)
-            {
-                totalDailyPnLs[j] += initialDataHolder.InitialData[j].DailyAccumulatedPnlByStrategy[i] * array[i];
-            }
-        }
-
+        double[] totalDailyPnLs = Utilities.CalculateDailyPnls(array, initialDataHolder);
         var sharpe = Sharpe.CalculateSharpeRatio(totalDailyPnLs);
 
         //let's multiply by array all strategies PnLs
@@ -194,17 +190,8 @@ public abstract class DrawDown
 {
     public static double CalculateMaxDrawdownForOnePermutation(int[] array, DataHolder initialDataHolder)
     {
-        double[] totalDailyPnLs = new double[initialDataHolder.InitialData.Count];
-
-        for (var j = 0; j < initialDataHolder.InitialData.Count; j++)
-        {
-            totalDailyPnLs[j] = 0;
-            for (var i = 0; i < array.Length; i++)
-            {
-                totalDailyPnLs[j] += initialDataHolder.InitialData[j].DailyAccumulatedPnlByStrategy[i] * array[i];
-            }
-        }
-
+        double[] totalDailyPnLs = Utilities.CalculateDailyPnls(array, initialDataHolder);
+        
         double[] dailyDrawdown = new double[initialDataHolder.InitialData.Count];
         double maxDrawdown = double.MaxValue;
         for (var i = 0; i < totalDailyPnLs.Length; i++)
