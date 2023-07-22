@@ -216,7 +216,7 @@ if (!Utilities.GetPreviousDayOfWeek(lastAvailableDate, firstAvailableDate, DayOf
 //it is prev monday before (end - length of insample)
 if (!Utilities.GetNextDayOfWeek(endDateOfInSample.AddDays(-parameters.InSampleDays), lastAvailableDate, DayOfWeek.Sunday, out var startDateOfInSample))
 {
-    throw new MyException("Could not find next Monday before " + firstAvailableDate);
+    throw new MyException("Could not find next Sunday after " + endDateOfInSample.AddDays(-parameters.InSampleDays));
 }
 
 do
