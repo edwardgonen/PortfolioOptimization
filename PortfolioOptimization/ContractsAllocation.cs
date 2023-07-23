@@ -178,6 +178,21 @@ public class ContractsAllocation
                 _contractAllocationsDictionary = previousContractsAllocation._contractAllocationsDictionary;
             }
         }
+        else //simulation
+        {
+            lock (_contractAllocationsDictionary)
+            {
+                foreach (var strategy in GetAllStrategies())
+                {
+                    var allSpecificStrategyAllocations = _contractAllocationsDictionary[strategy];
+                    foreach (var t in allSpecificStrategyAllocations)
+                    {
+                        if (t.NumberOfContracts > 1)
+                            t.NumberOfContracts *= multiplicationFactor;
+                    }
+                }
+            }
+        }
         
         //save to file
         lock (_contractAllocationsDictionary)
