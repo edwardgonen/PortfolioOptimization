@@ -147,11 +147,10 @@ public class ContractsAllocation
                 {
                     //get last entry in the new allocation for existing strategy
                     AllocationPerDate newAllocation = _contractAllocationsDictionary[strategyName].Last();
-                    if (bRealTime)
-                    {
-                        if (newAllocation.NumberOfContracts > 1)
-                            newAllocation.NumberOfContracts *= multiplicationFactor;
-                    }
+
+                    if (newAllocation.NumberOfContracts > 1)
+                        newAllocation.NumberOfContracts *= multiplicationFactor;
+
                     previousContractsAllocation.AddAllocation(newAllocation.AllocationStartDate, strategyName, newAllocation.NumberOfContracts);
                 }
                 //add new ones with zeros at the historical places
@@ -163,11 +162,10 @@ public class ContractsAllocation
                     {
                         previousContractsAllocation.AddAllocation(allocation.AllocationStartDate, strategyName, 0);
                     }
-                    if (bRealTime)
-                    {
-                        if (newAllocation.NumberOfContracts > 1)
-                            newAllocation.NumberOfContracts *= multiplicationFactor;
-                    }
+
+                    if (newAllocation.NumberOfContracts > 1)
+                        newAllocation.NumberOfContracts *= multiplicationFactor;
+
                     previousContractsAllocation.AddAllocation(newAllocation.AllocationStartDate, strategyName, newAllocation.NumberOfContracts);
                 }
                 //add ceased ones with zero allocation

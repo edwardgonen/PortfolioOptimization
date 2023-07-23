@@ -268,6 +268,9 @@ do
 await Task.WhenAll(optimizationTasks);
 //sort allocations by date
 contractsAllocation.SortByDate();
+
+//save to allocation file
+contractsAllocation.SaveToFile(parameters.BRealTime, parameters.ContractsAllocationFileName, parameters.MultiplicationFactor);
 //make the total result
 var accumulatedProfit = Profit.CalculateAccumulatedProfit(dataHolder, contractsAllocation, strategyList);
 
@@ -276,9 +279,6 @@ foreach (var row in accumulatedProfit)
 {
     outputFile.WriteLine(row.Date.ToShortDateString() + "," + row.ProfitToday + "," + row.ProfitToDate);
 }
-
-//save to allocation file
-contractsAllocation.SaveToFile(parameters.BRealTime, parameters.ContractsAllocationFileName, parameters.MultiplicationFactor);
 
 return 0;
 
