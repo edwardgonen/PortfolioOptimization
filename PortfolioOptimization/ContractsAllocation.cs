@@ -37,6 +37,23 @@ public class ContractsAllocation
         }
     }
 
+    public HashSet<string> GetSetOfStrategiesWithLastAllocationZero()
+    {
+        HashSet<string> result = new();
+        lock (_contractAllocationsDictionary)
+        {
+            foreach (var key in _contractAllocationsDictionary.Keys)
+            {
+                if (_contractAllocationsDictionary[key].Last().NumberOfContracts == 0)
+                {
+                    result.Add(key);
+                }
+            }
+        }
+
+        return result;
+    }
+    
     public double GetAllocation(DateTime processedDate, string strategyName)
     {
         double result = -1;
@@ -74,7 +91,7 @@ public class ContractsAllocation
         }
     }
 
-    private static ContractsAllocation LoadFromFile(string allocationFileName)
+    public static ContractsAllocation LoadFromFile(string allocationFileName)
     {
         ContractsAllocation contractsAllocation = new ContractsAllocation();
 
@@ -119,7 +136,7 @@ public class ContractsAllocation
     }
 
 
-    public void SaveToFile(bool bRealTime, string contractsAllocationFileName, double multiplicationFactor)
+    public ContractsAllocation SaveToFile(bool bRealTime, string contractsAllocationFileName, double multiplicationFactor, DailyPlList dailyPnlList)
     {
         if (bRealTime)
         {
@@ -171,8 +188,17 @@ public class ContractsAllocation
                 //add ceased ones with zero allocation
                 foreach (var strategyName in ceasedStrategies)
                 {
-                    //get last entry in the new allocation for existing strategy
-                    previousContractsAllocation.AddAllocation(lastDateAdded, strategyName, 0);
+                    //maybe it is a new strategy that we didn't yet include in optimization. 
+                    //so just continue with existing allocation for it
+                    if (!dailyPnlList.IsStrategyIncludedInOptimization(strategyName))
+                    {
+                        previousContractsAllocation.AddAllocation(lastDateAdded, strategyName, previousContractsAllocation.GetAllocation(exemplaryStrategyAllocations.Last().AllocationStartDate, strategyName));
+                    }
+                    else //not a new strategy. Just old ceased one. So set allocation to 0
+                    {
+                        //get last entry in the new allocation for existing strategy
+                        previousContractsAllocation.AddAllocation(lastDateAdded, strategyName, 0);
+                    }
                 }
                 //for the file save purposes replace the new one with the previous one
                 _contractAllocationsDictionary = previousContractsAllocation._contractAllocationsDictionary;
@@ -225,6 +251,8 @@ public class ContractsAllocation
             }
 
         }
+
+        return this;
     }
 
     class AllocationPerDate

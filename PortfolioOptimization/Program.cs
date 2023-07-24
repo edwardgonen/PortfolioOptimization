@@ -7,6 +7,8 @@ OptimizerContracts.GeneticAlgorithmType algorithmType =
 
 OptimizerContracts.FitnessAlgorithm fitnessAlgorithm = OptimizerContracts.FitnessAlgorithm.Sharpe;
 
+DailyPlList allPnls = new DailyPlList();
+
 Parameters parameters = Parameters.Load("Parameters.xml") ?? new Parameters();
 
 switch (args.Length)
@@ -162,7 +164,8 @@ if (args.Length > 0) parameters.BRealTime = false;
 
 if (parameters.BRealTime)
 {
-    DailyPlList allPnls = DailyPlList.LoadFromTradeCompletionLog(parameters.TradeCompletionFileName, parameters.NumberOfLinesToReadFromTheEndOfTradesLog);
+    allPnls = DailyPlList.LoadFromTradeCompletionLog(parameters);
+
     //save to file
     allPnls.SaveToFile(parameters.DailyPlFileName, parameters.StrategyMaxInactivityDays);
 }
@@ -270,7 +273,7 @@ await Task.WhenAll(optimizationTasks);
 contractsAllocation.SortByDate();
 
 //save to allocation file
-contractsAllocation.SaveToFile(parameters.BRealTime, parameters.ContractsAllocationFileName, parameters.MultiplicationFactor);
+contractsAllocation = contractsAllocation.SaveToFile(parameters.BRealTime, parameters.ContractsAllocationFileName, parameters.MultiplicationFactor, allPnls);
 //make the total result
 var accumulatedProfit = Profit.CalculateAccumulatedProfit(dataHolder, contractsAllocation, strategyList);
 

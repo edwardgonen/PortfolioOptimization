@@ -1,12 +1,15 @@
+using System.Runtime.InteropServices.JavaScript;
+
 namespace PortfolioOptimization;
 
 public class DailyPlList
 {
+    private readonly HashSet<string> _strategiesToNotIncludeInOptimization = new();
     private readonly List<DailyRowAllStrategies> _allStrategiesPnl = new();
     private readonly List<string> _strategiesList = new();
 
     private readonly Dictionary<string, DateTime> _lastStrategyTradeDates = new();
-    
+
     private void AddTradePnlForDate(DateTime date, string strategyName, double tradePnl)
     {
         //store last trade date
@@ -65,13 +68,30 @@ public class DailyPlList
             outputFile.WriteLine(t.Date.ToShortDateString() + "," + string.Join(",", dailyPnls));
         }
     }
-    
-    public static DailyPlList LoadFromTradeCompletionLog(string parametersTradeCompletionFileName, int numOfLastLinesToRead)
+
+    public bool IsStrategyIncludedInOptimization(string strategyName)
     {
+        return !_strategiesToNotIncludeInOptimization.Contains(strategyName);
+    }
+
+    public void AddStrategyToSetOfNotOptimized(string strategyName)
+    {
+        _strategiesToNotIncludeInOptimization.Add(strategyName);
+    }
+    //public static DailyPlList LoadFromTradeCompletionLog(string parametersTradeCompletionFileName, int numOfLastLinesToRead, int parametersInsampleDays)
+    public static DailyPlList LoadFromTradeCompletionLog(Parameters parameters)
+    {
+        //string parametersTradeCompletionFileName, int numOfLastLinesToRead, int parametersInsampleDays
         DailyPlList result = new DailyPlList();
+        
+        //read existing ContractAllocations file
+        ContractsAllocation existingContractsAllocation = ContractsAllocation.LoadFromFile(parameters.ContractsAllocationFileName);
+        //create a set of strategies that have allocation 0, so we will not add them to the daily pnl file
+        var strategiesWithZeroAllocation = existingContractsAllocation.GetSetOfStrategiesWithLastAllocationZero();
+
         //read the trade completion log
-        var readText = File.ReadAllLines(parametersTradeCompletionFileName);
-        var allLines = readText.Skip(Math.Max(0, readText.Count() - numOfLastLinesToRead));
+        var readText = File.ReadAllLines(parameters.TradeCompletionFileName);
+        var allLines = readText.Skip(Math.Max(0, readText.Count() - parameters.NumberOfLinesToReadFromTheEndOfTradesLog));
 
         foreach (var line in allLines)
         {
@@ -85,19 +105,36 @@ public class DailyPlList
             string strategyName = parts[10];
             
             //[6] is close date, [9] - strategy name, [11] PL
-            if (!DateTime.TryParse(parts[6], out var closedDate))
+            if (!DateTime.TryParse(parts[6], out var tradeDate))
             {
                 throw new MyException("Wrong closed date in TradeCompletionLog file " + parts[6]);
             }
-            closedDate = closedDate.Date;
-            result._lastStrategyTradeDates[strategyName] = closedDate;
+            tradeDate = tradeDate.Date;
+            //if strategy allocation in existing ContractsAllocation is 0 - don't include it in the Daily pnl
+            if (strategiesWithZeroAllocation.Contains(strategyName))
+            {
+                continue;
+            }
+            //Check if the strategy first trade is withing the insample days
+            //need to check if this is the first trade of the strategy
+            if (!result._lastStrategyTradeDates.ContainsKey(strategyName))
+            {
+                //first trade
+                //is it within insample period?
+                if ((DateTime.Now.Date - tradeDate.Date).Days < parameters.InSampleDays) //too early to include it
+                {
+                    result.AddStrategyToSetOfNotOptimized(strategyName);
+                    continue;
+                }
+            }
+            result._lastStrategyTradeDates[strategyName] = tradeDate;
 
             if (!double.TryParse(parts[11], out var tradePnl))
             {
                 throw new MyException("Wrong PnL in TradeCompletionLog file " + parts[11]);
             }
 
-            result.AddTradePnlForDate(closedDate, strategyName, tradePnl);
+            result.AddTradePnlForDate(tradeDate, strategyName, tradePnl);
         }
 
         //sort alphabetically
