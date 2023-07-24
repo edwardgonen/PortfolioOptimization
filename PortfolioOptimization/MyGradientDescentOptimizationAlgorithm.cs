@@ -9,7 +9,7 @@ public class MyGradientDescentOptimizationAlgorithm : IOptimizationAlgorithm
     private static readonly Random RandomGenerator = new Random();
     private readonly int _solutionArrayLength;
 
-    private const int MaxIterations = 10000;
+    private const int MaxIterations = 1000;
     private const double LearningRate = 0.1;
     
     private readonly int _minValue;
