@@ -237,9 +237,10 @@ do
     }
     else
     {
+        var allocation = contractsAllocation;
         optimizationTasks.Add(Task.Factory.StartNew(() =>
             {
-                optimizer.OptimizeAndUpdate(currentData, strategyList, contractsAllocation, parameters.ContractsRangeStart,
+                optimizer.OptimizeAndUpdate(currentData, strategyList, allocation, parameters.ContractsRangeStart,
                     parameters.ContractsRangeEnd);
             }
             , token));

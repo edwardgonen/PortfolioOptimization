@@ -1,5 +1,3 @@
-using System.Runtime.InteropServices.JavaScript;
-
 namespace PortfolioOptimization;
 
 public class DailyPlList
