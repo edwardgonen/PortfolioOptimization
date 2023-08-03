@@ -28,7 +28,7 @@ public class OptimizerContracts
                 gsa = new MyGradientDescentOptimizationAlgorithm(strategyList.Count, currentData, contractsRangeStart, contractsRangeEnd, _fitnessAlgorithm);
                 break;
             case GeneticAlgorithmType.ByStrategy:
-                gsa = new OptimizationByEachStrategySharpeAlgorithm(strategyList.Count, currentData, contractsRangeStart, contractsRangeEnd, _fitnessAlgorithm);
+                gsa = new OptimizationByEachStrategyAlgorithm(strategyList.Count, currentData, contractsRangeStart, contractsRangeEnd, _fitnessAlgorithm);
                 break;
             default:
                 throw new MyException("Algorithm not selected");

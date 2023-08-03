@@ -1,8 +1,8 @@
 namespace PortfolioOptimization;
 
-public class OptimizationByEachStrategySharpeAlgorithm : IOptimizationAlgorithm
+public class OptimizationByEachStrategyAlgorithm : IOptimizationAlgorithm
 {
-    public OptimizationByEachStrategySharpeAlgorithm(int numberOfStrategies, DataHolder dataHolder, int minValue, int maxValue, OptimizerContracts.FitnessAlgorithm fitnessAlgorithm)
+    public OptimizationByEachStrategyAlgorithm(int numberOfStrategies, DataHolder dataHolder, int minValue, int maxValue, OptimizerContracts.FitnessAlgorithm fitnessAlgorithm)
     {
         var targetArray = new int[numberOfStrategies];
         var sharpePerStrategy = new double[numberOfStrategies];
