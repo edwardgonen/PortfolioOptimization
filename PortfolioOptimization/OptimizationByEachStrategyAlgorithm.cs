@@ -2,14 +2,16 @@ namespace PortfolioOptimization;
 
 public class OptimizationByEachStrategyAlgorithm : IOptimizationAlgorithm
 {
-    private int[] result;
-    private double bestFitness;
+    private readonly int[] _result;
+    private readonly double _bestFitness;
     public OptimizationByEachStrategyAlgorithm(int numberOfStrategies, DataHolder dataHolder, int minValue, int maxValue, OptimizerContracts.FitnessAlgorithm fitnessAlgorithm)
     {
-        result = new int[numberOfStrategies];
+        _result = new int[numberOfStrategies];
         var sharpePerStrategy = new double[numberOfStrategies];
         var pnlPerStrategy = new double[numberOfStrategies, dataHolder.InitialData.Count];
-
+        //calculate contracts allocations
+        double totalSharpe = 0;
+        double maxSharpe = double.MinValue;
         for (int strategyNumber = 0; strategyNumber < numberOfStrategies; strategyNumber++)
         {
             double accumulatedPnl = 0;
@@ -20,19 +22,21 @@ public class OptimizationByEachStrategyAlgorithm : IOptimizationAlgorithm
             }
             //calculate sharpe
             sharpePerStrategy[strategyNumber] = Sharpe.CalculateSharpeRatio(Utilities.CustomArray<double>.GetRow(pnlPerStrategy, strategyNumber));
+            if (sharpePerStrategy[strategyNumber] > 0) totalSharpe += sharpePerStrategy[strategyNumber];
+            if (sharpePerStrategy[strategyNumber] > maxSharpe) maxSharpe = sharpePerStrategy[strategyNumber];
         }
         
-        //calculate contracts allocations
-        //1. add up all sharpe
-        double totalSharpe = sharpePerStrategy.Sum();
+        
         double maxContracts = maxValue;
 
         for (int strategyNumber = 0; strategyNumber < numberOfStrategies; strategyNumber++)
         {
-            result[strategyNumber] = Math.Max((int)(Math.Round((sharpePerStrategy[strategyNumber] / totalSharpe) * maxContracts)), 1);
+            if (sharpePerStrategy[strategyNumber] <= 0) _result[strategyNumber] = 1;
+            else 
+                _result[strategyNumber] = Math.Max((int)(Math.Round((sharpePerStrategy[strategyNumber] / maxSharpe) * maxContracts)), 1);
         }
 
-        bestFitness = totalSharpe;
+        _bestFitness = totalSharpe;
 
     }
 
@@ -43,11 +47,11 @@ public class OptimizationByEachStrategyAlgorithm : IOptimizationAlgorithm
 
     public int[] BestChromosome()
     {
-        return result;
+        return _result;
     }
 
     public double BestFitness()
     {
-        return bestFitness;
+        return _bestFitness;
     }
 }
