@@ -6,8 +6,4 @@ public interface IOptimizationAlgorithm
     public int[] BestChromosome();
     public double BestFitness();
 
-    public double Sss()
-    {
-        return 5;
-    }
 }
