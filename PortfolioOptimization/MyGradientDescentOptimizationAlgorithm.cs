@@ -97,6 +97,12 @@ public class MyGradientDescentOptimizationAlgorithm : IOptimizationAlgorithm
                 evaluationValue = Profit.CalculateProfitForOnePermutation(chromosome, _initialDataHolder);
                 evaluationValue /= DrawDown.CalculateMaxDrawdownForOnePermutation(chromosome, _initialDataHolder);
                 break;
+            case OptimizerContracts.FitnessAlgorithm.SharpeOnEma:
+                evaluationValue = SharpeOnEma.CalculateSharpeOnEmaForOnePermutation(chromosome, _initialDataHolder);
+                break;
+            case OptimizerContracts.FitnessAlgorithm.Sortino:
+                evaluationValue = Sortino.CalculateSortinoForOnePermutation(chromosome, _initialDataHolder);
+                break;
             case OptimizerContracts.FitnessAlgorithm.Sharpe:
             default:
                 evaluationValue = Sharpe.CalculateSharpeForOnePermutation(chromosome, _initialDataHolder);

@@ -56,6 +56,8 @@ public class OptimizerContracts
     {
         Sharpe,
         Linearity,
-        ProfitByDrawdown
+        ProfitByDrawdown,
+        SharpeOnEma,
+        Sortino
     }
 }

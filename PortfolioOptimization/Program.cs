@@ -149,13 +149,15 @@ switch (args.Length)
             fitnessAlgorithm = OptimizerContracts.FitnessAlgorithm.ProfitByDrawdown;
         else if (args[6].ToUpper().StartsWith("LI"))
             fitnessAlgorithm = OptimizerContracts.FitnessAlgorithm.Linearity;
+        else if (args[6].ToUpper().StartsWith("SE"))
+            fitnessAlgorithm = OptimizerContracts.FitnessAlgorithm.SharpeOnEma;
+        else if (args[6].ToUpper().StartsWith("SO"))
+            fitnessAlgorithm = OptimizerContracts.FitnessAlgorithm.Sortino;
         else
             fitnessAlgorithm = OptimizerContracts.FitnessAlgorithm.Sharpe;
-        
-        
         break;
     default:
-        Logger.Log("Wrong number of parameters. Usage <input data file> <in sample length> <out sample length> <T/G/R> <PD/SH/LI>");
+        Logger.Log("Wrong number of parameters. Usage <input data file> <in sample length> <out sample length> <T/G/R> <PD/SH/LI/SE/SO>");
         return -2;
 }
 

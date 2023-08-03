@@ -83,6 +83,22 @@ public static class Utilities
         return sum / returns.Length;
     }
 
+
+    public static double[] CalculateEma(double[] data, int period)
+    {
+        double smoothingConstant = 2.0 / (period + 1);
+        double[] emaValues = new double[data.Length];
+        emaValues[0] = data[0];
+
+        for (int i = 1; i < data.Length; i++)
+        {
+            emaValues[i] = (data[i] - emaValues[i - 1]) * smoothingConstant + emaValues[i - 1];
+        }
+
+        return emaValues;
+    }
+    
+
     public static double[] CalculateDailyPnls(int[] array, DataHolder initialDataHolder)
     {
         double[] totalDailyPnLs = new double[initialDataHolder.InitialData.Count];
@@ -169,7 +185,7 @@ public abstract class Sharpe
     public static double CalculateSharpeForOnePermutation(int[] array, DataHolder initialDataHolder)
     {
         double[] totalDailyPnLs = Utilities.CalculateDailyPnls(array, initialDataHolder);
-        var sharpe = Sharpe.CalculateSharpeRatio(totalDailyPnLs);
+        var sharpe = CalculateSharpeRatio(totalDailyPnLs);
 
         //let's multiply by array all strategies PnLs
         return sharpe;
@@ -185,6 +201,82 @@ public abstract class Sharpe
         
     }
 
+}
+
+public abstract class Sortino
+{
+    public static double CalculateSortinoForOnePermutation(int[] array, DataHolder initialDataHolder)
+    {
+        double[] totalDailyPnLs = Utilities.CalculateDailyPnls(array, initialDataHolder);
+        var sortino = CalculateSortinoRatio(totalDailyPnLs);
+        
+        return sortino;
+    }
+    private static double CalculateSortinoRatio(double[] returns)
+    {
+        if (returns == null || returns.Length == 0)
+        {
+            throw new ArgumentException("The 'returns' array must not be null or empty.");
+        }
+
+        double meanReturn = 0;
+        double sumSquaredNegativeReturns = 0;
+        int negativeReturnsCount = 0;
+
+        // Calculate the mean return and count negative returns
+        foreach (double ret in returns)
+        {
+            meanReturn += ret;
+            if (ret < 0)
+            {
+                sumSquaredNegativeReturns += ret * ret;
+                negativeReturnsCount++;
+            }
+        }
+
+        meanReturn /= returns.Length;
+
+        if (negativeReturnsCount == 0)
+        {
+            // Return a large value for the Sortino ratio when there are no negative returns
+            // to indicate a higher risk-adjusted performance.
+            return double.MaxValue;
+        }
+
+        // Calculate the downside risk (standard deviation of negative returns)
+        double downsideRisk = Math.Sqrt(sumSquaredNegativeReturns / negativeReturnsCount);
+
+        // Calculate the Sortino ratio
+        double sortinoRatio = (meanReturn - 0) / downsideRisk; // Assuming the risk-free rate is 0, change this value if needed.
+
+        return sortinoRatio;
+    }
+}
+
+public abstract class SharpeOnEma
+{
+    private static readonly double RiskFreeRate = 15.8745078664;
+    private static readonly int EmaPeriod = 50;
+
+    public static double CalculateSharpeOnEmaForOnePermutation(int[] array, DataHolder initialDataHolder)
+    {
+        double[] totalDailyPnLs = Utilities.CalculateDailyPnls(array, initialDataHolder);
+        totalDailyPnLs = Utilities.CalculateEma(totalDailyPnLs, Math.Min(EmaPeriod, totalDailyPnLs.Length));
+        var sharpe = CalculateSharpeOnEmaRatio(totalDailyPnLs);
+
+        //let's multiply by array all strategies PnLs
+        return sharpe;
+    }
+
+    private static double CalculateSharpeOnEmaRatio(double[] returns)
+    {
+        double averageReturn = Utilities.CalculateAverage(returns);
+        double standardDeviation = Utilities.CalculateStandardDeviation(returns);
+
+        if (standardDeviation == 0) standardDeviation = 1;
+        return averageReturn / standardDeviation * RiskFreeRate;
+        
+    }
 }
 public abstract class DrawDown
 {
