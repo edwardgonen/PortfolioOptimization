@@ -14,12 +14,8 @@ public class OptimizationByEachStrategyAlgorithm : IOptimizationAlgorithm
         double maxSharpe = double.MinValue;
         for (int strategyNumber = 0; strategyNumber < numberOfStrategies; strategyNumber++)
         {
-            double accumulatedPnl = 0;
             for (int dateRowNumber = 0; dateRowNumber < dataHolder.InitialData.Count; dateRowNumber++)
             {
-                //accumulatedPnl += dataHolder.InitialData[dateRowNumber].DailyAccumulatedPnlByStrategy[strategyNumber];
-                //pnlPerStrategy[strategyNumber, dateRowNumber] = accumulatedPnl;
-                
                 pnlPerStrategy[strategyNumber, dateRowNumber] = dataHolder.InitialData[dateRowNumber].DailyAccumulatedPnlByStrategy[strategyNumber];
             }
             //calculate sharpe
