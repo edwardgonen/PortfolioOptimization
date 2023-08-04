@@ -62,6 +62,7 @@ public class OptimizerContracts
         Linearity,
         ProfitByDrawdown,
         SharpeOnEma,
-        Sortino
+        Sortino,
+        MaxProfit
     }
 }

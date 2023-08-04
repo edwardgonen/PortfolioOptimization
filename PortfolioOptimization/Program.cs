@@ -157,6 +157,8 @@ switch (args.Length)
             fitnessAlgorithm = OptimizerContracts.FitnessAlgorithm.SharpeOnEma;
         else if (args[6].ToUpper().StartsWith("SO"))
             fitnessAlgorithm = OptimizerContracts.FitnessAlgorithm.Sortino;
+        else if (args[6].ToUpper().StartsWith("MP"))
+            fitnessAlgorithm = OptimizerContracts.FitnessAlgorithm.MaxProfit;
         else
             fitnessAlgorithm = OptimizerContracts.FitnessAlgorithm.Sharpe;
         break;
