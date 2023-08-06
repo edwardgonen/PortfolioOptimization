@@ -21,6 +21,10 @@ public class OptimizationByEachStrategyAlgorithm : IOptimizationAlgorithm
             {
                 _result = GetAllocationByLinearity(numberOfStrategies, dataHolder, 1, maxValue);
             } break;
+            case OptimizerContracts.FitnessAlgorithm.Sortino:
+            {
+                _result = GetAllocationBySortino(numberOfStrategies, dataHolder, 1, maxValue);
+            } break;
             case OptimizerContracts.FitnessAlgorithm.Sharpe:
             default:
             {
@@ -128,6 +132,35 @@ public class OptimizationByEachStrategyAlgorithm : IOptimizationAlgorithm
             if (profitPerStrategy[strategyNumber] <= 0) result[strategyNumber] = minNumOfContracts;
             else 
                 result[strategyNumber] = Math.Max((int)(Math.Round((profitPerStrategy[strategyNumber] / maxProfit) * maxNumOfContracts)), minNumOfContracts);
+        }
+
+        return result;
+    }
+    
+    private int[] GetAllocationBySortino(int numberOfStrategies, DataHolder dataHolder, int minNumOfContracts, int maxNumOfContracts)
+    {
+        var result = new int[numberOfStrategies];
+        var pnlPerStrategy = new double[numberOfStrategies, dataHolder.InitialData.Count];
+        //calculate contracts allocations
+        double maxSortino = double.MinValue;        
+        var sortinoPerStrategy = new double[numberOfStrategies];
+        for (int strategyNumber = 0; strategyNumber < numberOfStrategies; strategyNumber++)
+        {
+            for (int dateRowNumber = 0; dateRowNumber < dataHolder.InitialData.Count; dateRowNumber++)
+            {
+                pnlPerStrategy[strategyNumber, dateRowNumber] = dataHolder.InitialData[dateRowNumber].DailyAccumulatedPnlByStrategy[strategyNumber];
+            }
+            //calculate sharpe
+            sortinoPerStrategy[strategyNumber] = Sortino.CalculateSortinoRatio(Utilities.CustomArray<double>.GetRow(pnlPerStrategy, strategyNumber));
+            if (sortinoPerStrategy[strategyNumber] > maxSortino) maxSortino = sortinoPerStrategy[strategyNumber];
+        }
+        
+
+        for (int strategyNumber = 0; strategyNumber < numberOfStrategies; strategyNumber++)
+        {
+            if (sortinoPerStrategy[strategyNumber] <= 0) result[strategyNumber] = minNumOfContracts;
+            else 
+                result[strategyNumber] = Math.Max((int)(Math.Round((sortinoPerStrategy[strategyNumber] / maxSortino) * maxNumOfContracts)), minNumOfContracts);
         }
 
         return result;

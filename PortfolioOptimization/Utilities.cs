@@ -231,7 +231,7 @@ public abstract class Sortino
         
         return sortino;
     }
-    private static double CalculateSortinoRatio(double[] returns)
+    public static double CalculateSortinoRatio(double[] returns)
     {
         if (returns == null || returns.Length == 0)
         {
