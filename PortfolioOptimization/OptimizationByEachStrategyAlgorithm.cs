@@ -25,6 +25,10 @@ public class OptimizationByEachStrategyAlgorithm : IOptimizationAlgorithm
             {
                 _result = GetAllocationBySortino(numberOfStrategies, dataHolder, 1, maxValue);
             } break;
+            case OptimizerContracts.FitnessAlgorithm.ConstNumberOfContracts:
+            {
+                _result = GetAllocationConstantNumber(numberOfStrategies, dataHolder, 1, maxValue);
+            } break;
             case OptimizerContracts.FitnessAlgorithm.Sharpe:
             default:
             {
@@ -141,7 +145,18 @@ public class OptimizationByEachStrategyAlgorithm : IOptimizationAlgorithm
 
         return result;
     }
-    
+
+    private int[] GetAllocationConstantNumber(int numberOfStrategies, DataHolder dataHolder, int minNumOfContracts,
+        int maxNumOfContracts)
+    {
+        var result = new int[numberOfStrategies];
+        for (int strategyNumber = 0; strategyNumber < numberOfStrategies; strategyNumber++)
+        {
+            result[strategyNumber] = maxNumOfContracts;
+        }
+
+        return result;
+    }
     private int[] GetAllocationBySortino(int numberOfStrategies, DataHolder dataHolder, int minNumOfContracts, int maxNumOfContracts)
     {
         var result = new int[numberOfStrategies];

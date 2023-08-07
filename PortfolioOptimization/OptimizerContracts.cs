@@ -63,6 +63,7 @@ public class OptimizerContracts
         ProfitByDrawdown,
         SharpeOnEma,
         Sortino,
-        MaxProfit
+        MaxProfit,
+        ConstNumberOfContracts
     }
 }
