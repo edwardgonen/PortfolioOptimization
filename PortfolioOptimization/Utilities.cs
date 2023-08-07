@@ -23,6 +23,7 @@ public static class Utilities
 
         return exponentialValue;
     }
+    
     public static class CustomArray<T>
     {
         public static T[] GetColumn(T[,] matrix, int columnNumber)
@@ -86,7 +87,6 @@ public static class Utilities
             }
             foundDate = foundDate.AddDays(-1);
         }
-
         foundDate = currentDate; //should not happen
         throw new MyException("Previous " + soughtDay + " was not found");
     }
@@ -327,4 +327,81 @@ public abstract class DrawDown
         if (maxDrawdown == 0) maxDrawdown = 1;
         return Math.Abs(maxDrawdown);
     }
+
+
 }
+    public abstract class LinearInterpolation
+    {
+        public static double CalculateRSquaredForOnePermutation(int[] array, DataHolder initialDataHolder)
+        {
+            double[] totalDailyPnLs = Utilities.CalculateDailyPnls(array, initialDataHolder);
+            double[] accumulatedDailyPnls = new double[totalDailyPnLs.Length];
+            for (int i = 0; i < totalDailyPnLs.Length; i++)
+            {
+                accumulatedDailyPnls[i] += totalDailyPnLs[i];
+            }
+            
+            var yDoubles = accumulatedDailyPnls;            
+            var xDoubles = new double[yDoubles.Length];
+            for (int i = 0; i < yDoubles.Length; i++) xDoubles[i] = i;
+            LinearInterpolation.CalculateLinearInterpolation(xDoubles, yDoubles, out double k, out double b);
+            var rSquaredPerStrategy = LinearInterpolation.CalculateRSquared(xDoubles, yDoubles, k, b);
+            return rSquaredPerStrategy;
+        }
+        public static double CalculateRSquared(double[] x, double[] y, double slope, double intercept)
+        {
+            if (x.Length != y.Length)
+            {
+                throw new ArgumentException("Input arrays must have the same length.");
+            }
+
+            double yMean = y.Average();
+            double sumSquaredTotal = 0;
+            double sumSquaredResidual = 0;
+
+            for (int i = 0; i < x.Length; i++)
+            {
+                double predictedY = slope * x[i] + intercept;
+                sumSquaredTotal += Math.Pow(y[i] - yMean, 2);
+                sumSquaredResidual += Math.Pow(y[i] - predictedY, 2);
+            }
+
+            if (Math.Abs(sumSquaredTotal) < double.Epsilon)
+            {
+                throw new InvalidOperationException("Cannot calculate R-squared due to division by zero.");
+            }
+
+            return 1 - (sumSquaredResidual / sumSquaredTotal);
+        }
+        public static void CalculateLinearInterpolation(double[] x, double[] y, out double k, out double b)
+        {
+            if (x == null || y == null || x.Length != y.Length)
+            {
+                throw new ArgumentException("Input arrays must have the same length.", nameof(x));
+            }
+
+            double sumX = 0;
+            double sumY = 0;
+            double sumXy = 0;
+            double sumX2 = 0;
+
+            for (int i = 0; i < x.Length; i++)
+            {
+                sumX += x[i];
+                sumY += y[i];
+                sumXy += x[i] * y[i];
+                sumX2 += x[i] * x[i];
+            }
+
+            double n = x.Length;
+            double denominator = n * sumX2 - sumX * sumX;
+
+            if (Math.Abs(denominator) < double.Epsilon)
+            {
+                throw new InvalidOperationException("Cannot perform linear interpolation due to division by zero.");
+            }
+
+            k = (n * sumXy - sumX * sumY) / denominator;
+            b = (sumY - k * sumX) / n;
+        }
+    }

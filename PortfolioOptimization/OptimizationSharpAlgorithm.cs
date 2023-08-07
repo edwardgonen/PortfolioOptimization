@@ -95,7 +95,7 @@ public class ArrayFitness : IFitness
         switch (_fitnessAlgorithm)
         {
             case OptimizerContracts.FitnessAlgorithm.Linearity:
-                evaluationValue = Linearity.CalculateLinearityForOnePermutation(_targetArray, _initialDataHolder);
+                evaluationValue = LinearInterpolation.CalculateRSquaredForOnePermutation(_targetArray, _initialDataHolder);
                 break;
             case OptimizerContracts.FitnessAlgorithm.ProfitByDrawdown:
                 evaluationValue = Profit.CalculateProfitForOnePermutation(_targetArray, _initialDataHolder);

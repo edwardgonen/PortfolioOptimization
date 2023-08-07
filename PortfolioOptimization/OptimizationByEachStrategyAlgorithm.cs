@@ -58,27 +58,36 @@ public class OptimizationByEachStrategyAlgorithm : IOptimizationAlgorithm
         var result = new int[numberOfStrategies];
         var pnlPerStrategy = new double[numberOfStrategies, dataHolder.InitialData.Count];
         //calculate contracts allocations
-        double minDeviation = double.MaxValue;
-        double maxDeviation = double.MinValue;
-        var deviationPerStrategy = new double[numberOfStrategies];
+
+        double maxRSquared = double.MinValue;
+        var rSquaredPerStrategy = new double[numberOfStrategies];
         for (int strategyNumber = 0; strategyNumber < numberOfStrategies; strategyNumber++)
         {
             for (int dateRowNumber = 0; dateRowNumber < dataHolder.InitialData.Count; dateRowNumber++)
             {
                 pnlPerStrategy[strategyNumber, dateRowNumber] = dataHolder.InitialData[dateRowNumber].DailyAccumulatedPnlByStrategy[strategyNumber];
             }
-            //calculate sharpe
-            deviationPerStrategy[strategyNumber] = Utilities.CalculateStandardDeviation(Utilities.CustomArray<double>.GetRow(pnlPerStrategy, strategyNumber));
-            if (deviationPerStrategy[strategyNumber] < minDeviation) minDeviation = deviationPerStrategy[strategyNumber];
-            if (deviationPerStrategy[strategyNumber] > maxDeviation) maxDeviation = deviationPerStrategy[strategyNumber];
-        }
+            //calculate rSquared
 
-        double deviationRange = Math.Abs(maxDeviation - minDeviation);
+            var yDoubles = Utilities.CustomArray<double>.GetRow(pnlPerStrategy, strategyNumber);            
+            var xDoubles = new double[yDoubles.Length];
+            for (int i = 0; i < yDoubles.Length; i++) xDoubles[i] = i;
+            LinearInterpolation.CalculateLinearInterpolation(xDoubles, yDoubles, out double k, out double b);
+            rSquaredPerStrategy[strategyNumber] = LinearInterpolation.CalculateRSquared(xDoubles, Utilities.CustomArray<double>.GetRow(pnlPerStrategy, strategyNumber), k, b);
+            if (rSquaredPerStrategy[strategyNumber] > maxRSquared) maxRSquared = rSquaredPerStrategy[strategyNumber];
+        }
+        
         for (int strategyNumber = 0; strategyNumber < numberOfStrategies; strategyNumber++)
         {
-            if (deviationPerStrategy[strategyNumber] <= 0) result[strategyNumber] = maxNumOfContracts;
-            else 
-                result[strategyNumber] = Math.Max((int)(Math.Round((maxNumOfContracts - deviationPerStrategy[strategyNumber] / deviationRange * maxNumOfContracts) )), minNumOfContracts);
+            if (dataHolder.InitialData.Last().DailyAccumulatedPnlByStrategy[strategyNumber] <=
+                dataHolder.InitialData.First().DailyAccumulatedPnlByStrategy[strategyNumber] || maxRSquared == 0)
+            {
+                result[strategyNumber] = minNumOfContracts;
+            }
+            else
+            {
+                result[strategyNumber] = Math.Max((int)(Math.Round((rSquaredPerStrategy[strategyNumber] / maxRSquared) * maxNumOfContracts)), minNumOfContracts);
+            }
         }
 
         return result;
