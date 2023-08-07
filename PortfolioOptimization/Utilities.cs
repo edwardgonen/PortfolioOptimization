@@ -10,7 +10,19 @@ public static class Logger
 
 public static class Utilities
 {
-    
+    public static double CalculateExponentialFunctionValue(double input)
+    {
+        if (input < 0 || input > 1)
+        {
+            throw new ArgumentException("The input must be in the range of 0 to 1");
+        }
+
+        double baseValue = Math.E;// Euler's number (e)
+        double exponent = -5 * (1 - input); // Adjust the exponent as needed
+        double exponentialValue = Math.Pow(baseValue, exponent);
+
+        return exponentialValue;
+    }
     public static class CustomArray<T>
     {
         public static T[] GetColumn(T[,] matrix, int columnNumber)
