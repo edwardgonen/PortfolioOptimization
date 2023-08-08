@@ -11,29 +11,29 @@ public class OptimizationByEachStrategyAlgorithm : IOptimizationAlgorithm
             case OptimizerContracts.FitnessAlgorithm.MaxProfit:
             {
                 //By Max Profit
-                _result = GetAllocationByMaxProfit(numberOfStrategies, dataHolder, 1, maxValue);
+                _result = GetAllocationByMaxProfit(numberOfStrategies, dataHolder, minValue, maxValue);
             } break;
             case OptimizerContracts.FitnessAlgorithm.ProfitByDrawdown:
             {
-                _result = GetAllocationByProfitByDrawDown(numberOfStrategies, dataHolder, 1, maxValue);
+                _result = GetAllocationByProfitByDrawDown(numberOfStrategies, dataHolder, minValue, maxValue);
             } break;
             case OptimizerContracts.FitnessAlgorithm.Linearity:
             {
-                _result = GetAllocationByLinearity(numberOfStrategies, dataHolder, 1, maxValue);
+                _result = GetAllocationByLinearity(numberOfStrategies, dataHolder, minValue, maxValue);
             } break;
             case OptimizerContracts.FitnessAlgorithm.Sortino:
             {
-                _result = GetAllocationBySortino(numberOfStrategies, dataHolder, 1, maxValue);
+                _result = GetAllocationBySortino(numberOfStrategies, dataHolder, minValue, maxValue);
             } break;
             case OptimizerContracts.FitnessAlgorithm.ConstNumberOfContracts:
             {
-                _result = GetAllocationConstantNumber(numberOfStrategies, dataHolder, 1, maxValue);
+                _result = GetAllocationConstantNumber(numberOfStrategies, 1, maxValue);
             } break;
             case OptimizerContracts.FitnessAlgorithm.Sharpe:
             default:
             {
                 //By Sharpe
-                _result = GetAllocationBySharpe(numberOfStrategies, dataHolder, 1, maxValue);
+                _result = GetAllocationBySharpe(numberOfStrategies, dataHolder, minValue, maxValue);
             } break;
         }
     }
@@ -155,7 +155,7 @@ public class OptimizationByEachStrategyAlgorithm : IOptimizationAlgorithm
         return result;
     }
 
-    private int[] GetAllocationConstantNumber(int numberOfStrategies, DataHolder dataHolder, int minNumOfContracts,
+    private int[] GetAllocationConstantNumber(int numberOfStrategies, int minNumOfContracts,
         int maxNumOfContracts)
     {
         var result = new int[numberOfStrategies];
