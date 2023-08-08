@@ -72,7 +72,7 @@ public class DailyPlList
         return !_strategiesToNotIncludeInOptimization.Contains(strategyName);
     }
 
-    public void AddStrategyToSetOfNotOptimized(string strategyName)
+    private void AddStrategyToSetOfNotOptimized(string strategyName)
     {
         _strategiesToNotIncludeInOptimization.Add(strategyName);
     }
