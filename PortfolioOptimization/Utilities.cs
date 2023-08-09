@@ -23,6 +23,11 @@ public static class Utilities
 
         return exponentialValue;
     }
+
+    public static double CalculateSigmoid(double x, double slope = 10, double xOffset = 0)
+    {
+        return 1.0 / (1.0 + Math.Exp(-slope*(x - xOffset)));
+    }
     
     public static class CustomArray<T>
     {
@@ -368,7 +373,8 @@ public abstract class DrawDown
 
             if (Math.Abs(sumSquaredTotal) < double.Epsilon)
             {
-                throw new InvalidOperationException("Cannot calculate R-squared due to division by zero.");
+                //throw new InvalidOperationException("Cannot calculate R-squared due to division by zero.");
+                return 1;
             }
 
             return 1 - (sumSquaredResidual / sumSquaredTotal);
