@@ -374,7 +374,7 @@ public abstract class DrawDown
             if (Math.Abs(sumSquaredTotal) < double.Epsilon)
             {
                 //throw new InvalidOperationException("Cannot calculate R-squared due to division by zero.");
-                return 1;
+                return 0;
             }
 
             return 1 - (sumSquaredResidual / sumSquaredTotal);
