@@ -215,6 +215,10 @@ if (endDateOfInSample >= lastAvailableDate)
 var contractsAllocation = new ContractsAllocation();
 
 List<Task> optimizationTasks = new List<Task>();
+// Create a scheduler that uses two threads.
+LimitedConcurrencyLevelTaskScheduler lcts = new LimitedConcurrencyLevelTaskScheduler();
+// Create a TaskFactory and pass it our custom scheduler.
+TaskFactory factory = new TaskFactory(lcts);
 
 //now loop. I'll go from end (latter) to begin (former)
 //1. find the start and end of last days of in sample
@@ -248,7 +252,7 @@ do
     else
     {
         var allocation = contractsAllocation;
-        optimizationTasks.Add(Task.Factory.StartNew(() =>
+        optimizationTasks.Add(factory.StartNew(() =>
             {
                 optimizer.OptimizeAndUpdate(currentData, strategyList, allocation, parameters.ContractsRangeStart,
                     parameters.ContractsRangeEnd);
