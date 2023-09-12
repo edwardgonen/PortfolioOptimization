@@ -15,7 +15,7 @@ public class OptimizationByEachStrategyAlgorithm : IOptimizationAlgorithm
             } break;
             case OptimizerContracts.FitnessAlgorithm.ProfitByDrawdown:
             {
-                _result = GetAllocationByProfitByDrawDown(numberOfStrategies, dataHolder, minValue, maxValue);
+                _result = GetAllocationByProfitByDrawDown();
             } break;
             case OptimizerContracts.FitnessAlgorithm.Linearity:
             {
@@ -27,7 +27,7 @@ public class OptimizationByEachStrategyAlgorithm : IOptimizationAlgorithm
             } break;
             case OptimizerContracts.FitnessAlgorithm.ConstNumberOfContracts:
             {
-                _result = GetAllocationConstantNumber(numberOfStrategies, 1, maxValue);
+                _result = GetAllocationConstantNumber(numberOfStrategies, maxValue);
             } break;
             case OptimizerContracts.FitnessAlgorithm.Sharpe:
             default:
@@ -166,7 +166,7 @@ public class OptimizationByEachStrategyAlgorithm : IOptimizationAlgorithm
         return result;
     }
 
-    private int[] GetAllocationConstantNumber(int numberOfStrategies, int minNumOfContracts,
+    private int[] GetAllocationConstantNumber(int numberOfStrategies,
         int maxNumOfContracts)
     {
         var result = new int[numberOfStrategies];
@@ -206,7 +206,7 @@ public class OptimizationByEachStrategyAlgorithm : IOptimizationAlgorithm
         return result;
     }
 
-    private int[] GetAllocationByProfitByDrawDown(int numberOfStrategies, DataHolder dataHolder, int minNumOfContracts, int maxNumOfContracts)
+    private int[] GetAllocationByProfitByDrawDown()
     {
         throw new NotImplementedException("Profit by Drawdown algorithm is not yet implemented per strategy");
     }
