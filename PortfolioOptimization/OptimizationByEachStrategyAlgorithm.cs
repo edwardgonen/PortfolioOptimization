@@ -115,13 +115,17 @@ public class OptimizationByEachStrategyAlgorithm : IOptimizationAlgorithm
         {
             /*
             if (sharpePerStrategy[strategyNumber] <= 0) result[strategyNumber] = minNumOfContracts;
-            else
-            {
-                double ratio = sharpePerStrategy[strategyNumber] / maxSharpe;
-                result[strategyNumber] =
-                    Math.Max((int) (Math.Round(ratio * maxNumOfContracts)),
-                        minNumOfContracts);
-            }
+               else
+               {
+               double ratio = sharpePerStrategy[strategyNumber] / maxSharpe;
+               
+               double a = 2;
+               double c = 3;
+               double sigmoid = 1 / (1 + double.Exp(-(a*ratio-c)));
+               result[strategyNumber] =
+               Math.Max((int) (Math.Round(sigmoid * maxNumOfContracts)),
+               minNumOfContracts);
+               }
             */
             if (sharpePerStrategy[strategyNumber] <= 0) result[strategyNumber] = minNumOfContracts;
             else
