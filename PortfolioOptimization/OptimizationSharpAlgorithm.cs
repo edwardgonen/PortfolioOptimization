@@ -5,37 +5,21 @@ namespace PortfolioOptimization;
 public class OptimizationSharpAlgorithm : IOptimizationAlgorithm
 {
     private readonly GeneticAlgorithm _ga;
+    private readonly OptimizerContracts.FitnessAlgorithm _fitnessAlgorithm;
+    private readonly DataHolder _initialDataHolder;
 
     public OptimizationSharpAlgorithm(int numberOfStrategies, DataHolder dataHolder, int minValue, int maxValue, OptimizerContracts.FitnessAlgorithm fitnessAlgorithm)
     {
-        var targetArray = new int[numberOfStrategies];
-        var fitness = new ArrayFitness(dataHolder, targetArray, fitnessAlgorithm);
-        //var chromosome = new IntegerChromosome(minValue, maxValue);
-        
-        //for floating point chromosome
-        double[] minimums = new double[numberOfStrategies];
-        double[] maximums = new double[numberOfStrategies];
-        int[] digits = new int[numberOfStrategies];
-        int[] fractions = new int[numberOfStrategies];
 
-        for (var i = 0; i < numberOfStrategies; i++)
-        {
-            minimums[i] = minValue;
-            maximums[i] = maxValue;
-            digits[i] = 5;
-            fractions[i] = 0;
-        }
-        
-        var chromosome = new FloatingPointChromosome(
-            minimums,
-            maximums,
-            digits,
-            fractions);
+        _fitnessAlgorithm = fitnessAlgorithm;
+        _initialDataHolder = dataHolder;
 
-        var population = new Population(1000, 1000, chromosome);
+        int populationSize = 1000;
+        var population = new Population(populationSize, populationSize, new YourCustomClass(numberOfStrategies, minValue, maxValue));
         var selection = new EliteSelection();
         var crossover = new UniformCrossover();
         var mutation = new UniformMutation(true);
+        var fitness = new FuncFitness(EvaluateFitness);
 
         _ga = new GeneticAlgorithm(population, fitness, selection, crossover, mutation)
         {
@@ -50,14 +34,10 @@ public class OptimizationSharpAlgorithm : IOptimizationAlgorithm
 
     public int[] BestChromosome()
     {
-        var bestChromosome = _ga.BestChromosome as FloatingPointChromosome;
-        if (bestChromosome == null) return new int[1];
-        var doubleValues = bestChromosome.ToFloatingPoints();
-        var result = new int[doubleValues.Length];
-        
-        for (var i = 0; i < doubleValues.Length; i++)
+        var result = new int[_ga.BestChromosome.Length];
+        for (int i = 0; i < _ga.BestChromosome.Length; i++)
         {
-            result[i] = (int)doubleValues[i];
+            result[i] = Convert.ToInt32(((YourCustomClass)_ga.BestChromosome).GetGene(i).Value);
         }
         return result;
     }
@@ -67,51 +47,70 @@ public class OptimizationSharpAlgorithm : IOptimizationAlgorithm
         if (_ga.BestChromosome.Fitness != null) return _ga.BestChromosome.Fitness.Value;
         return -1;
     }
-}
 
-public class ArrayFitness : IFitness
-{
-    private readonly DataHolder _initialDataHolder;
-    private readonly int[] _targetArray;
-    private readonly OptimizerContracts.FitnessAlgorithm _fitnessAlgorithm;
+    private double EvaluateFitness(IChromosome chromosome)
+    {
 
-    public ArrayFitness(DataHolder initialDataHolder, int[] targetArray, OptimizerContracts.FitnessAlgorithm fitnessAlgorithm)
-    {
-        _fitnessAlgorithm = fitnessAlgorithm;
-        _initialDataHolder = initialDataHolder;
-        _targetArray = targetArray;
-    }
-    public double Evaluate(IChromosome chromosome)
-    {
-        var currentChromosome = chromosome as FloatingPointChromosome;
-        if (currentChromosome == null) return 0;
-        var doubleValues = currentChromosome.ToFloatingPoints();
-        for (var i = 0; i < doubleValues.Length; i++)
+
+        int[] targetArray = new int[chromosome.Length];
+        for (int i = 0; i < chromosome.Length; i++)
         {
-            _targetArray[i] = (int)doubleValues[i];
+            targetArray[i] = Convert.ToInt32(((YourCustomClass) chromosome).GetGene(i).Value);
         }
+        
 
         double evaluationValue;
         switch (_fitnessAlgorithm)
         {
             case OptimizerContracts.FitnessAlgorithm.Linearity:
-                evaluationValue = LinearInterpolation.CalculateRSquaredForOnePermutation(_targetArray, _initialDataHolder);
+                evaluationValue = LinearInterpolation.CalculateRSquaredForOnePermutation(targetArray, _initialDataHolder);
                 break;
             case OptimizerContracts.FitnessAlgorithm.ProfitByDrawdown:
-                evaluationValue = Profit.CalculateProfitForOnePermutation(_targetArray, _initialDataHolder);
-                evaluationValue /= DrawDown.CalculateMaxDrawdownForOnePermutation(_targetArray, _initialDataHolder);
+                evaluationValue = Profit.CalculateProfitForOnePermutation(targetArray, _initialDataHolder);
+                evaluationValue /= DrawDown.CalculateMaxDrawdownForOnePermutation(targetArray, _initialDataHolder);
                 break;
             case OptimizerContracts.FitnessAlgorithm.SharpeOnEma:
-                evaluationValue = SharpeOnEma.CalculateSharpeOnEmaForOnePermutation(_targetArray, _initialDataHolder);
+                evaluationValue = SharpeOnEma.CalculateSharpeOnEmaForOnePermutation(targetArray, _initialDataHolder);
                 break;
             case OptimizerContracts.FitnessAlgorithm.Sortino:
-                evaluationValue = Sortino.CalculateSortinoForOnePermutation(_targetArray, _initialDataHolder);
+                evaluationValue = Sortino.CalculateSortinoForOnePermutation(targetArray, _initialDataHolder);
                 break;
             case OptimizerContracts.FitnessAlgorithm.Sharpe:
             default:
-                evaluationValue = Sharpe.CalculateSharpeForOnePermutation(_targetArray, _initialDataHolder);
+                evaluationValue = Sharpe.CalculateSharpeForOnePermutation(targetArray, _initialDataHolder);
                 break;
         }
         return evaluationValue;
+    }
+}
+public class YourCustomClass : ChromosomeBase
+{
+    private readonly int _numberOfStrategies;
+    private readonly int _minValue;
+    private readonly int _maxValue;
+
+    public YourCustomClass(int numberOfStrategies, int minValue, int maxValue) : base(numberOfStrategies)
+    {
+        _numberOfStrategies = numberOfStrategies;
+        _minValue = minValue;
+        _maxValue = maxValue;
+
+        for (int i = 0; i < Length; i++)
+        {
+            ReplaceGene(i, GenerateGene(i));
+        }
+    }
+
+
+    public sealed override Gene GenerateGene(int geneIndex)
+    {
+        // Generate a random value between min and max with step size.
+        double value = RandomizationProvider.Current.GetInt(_minValue, _maxValue);
+        return new Gene(value);
+    }
+
+    public override IChromosome CreateNew()
+    {
+        return new YourCustomClass(_numberOfStrategies, _minValue, _maxValue);
     }
 }
