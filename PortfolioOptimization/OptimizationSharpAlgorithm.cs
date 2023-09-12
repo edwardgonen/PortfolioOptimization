@@ -105,7 +105,7 @@ public class YourCustomClass : ChromosomeBase
     public sealed override Gene GenerateGene(int geneIndex)
     {
         // Generate a random value between min and max with step size.
-        double value = RandomizationProvider.Current.GetInt(_minValue, _maxValue);
+        int value = RandomizationProvider.Current.GetInt(_minValue, _maxValue + 1);
         return new Gene(value);
     }
 
