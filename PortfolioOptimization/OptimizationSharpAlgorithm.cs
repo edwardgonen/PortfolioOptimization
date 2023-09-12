@@ -75,6 +75,9 @@ public class OptimizationSharpAlgorithm : IOptimizationAlgorithm
             case OptimizerContracts.FitnessAlgorithm.Sortino:
                 evaluationValue = Sortino.CalculateSortinoForOnePermutation(targetArray, _initialDataHolder);
                 break;
+            case OptimizerContracts.FitnessAlgorithm.MaxProfit:
+                evaluationValue = MaxProfit.CalculateAccumulatedProfit(targetArray, _initialDataHolder);
+                break;
             case OptimizerContracts.FitnessAlgorithm.Sharpe:
             default:
                 evaluationValue = Sharpe.CalculateSharpeForOnePermutation(targetArray, _initialDataHolder);

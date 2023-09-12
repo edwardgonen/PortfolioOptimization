@@ -213,6 +213,15 @@ public abstract class Linearity
         return 1 / tmp;
     }
 }
+
+public abstract class MaxProfit
+{
+    public static double CalculateAccumulatedProfit(int[] array, DataHolder initialDataHolder)
+    {
+        double[] totalDailyPnLs = Utilities.CalculateDailyPnls(array, initialDataHolder);
+        return totalDailyPnLs.Sum();
+    }
+}
 public abstract class Sharpe
 {
     

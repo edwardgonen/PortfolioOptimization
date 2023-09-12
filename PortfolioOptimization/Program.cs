@@ -291,12 +291,16 @@ contractsAllocation.SortByDate();
 contractsAllocation = contractsAllocation.SaveToFile(parameters.BRealTime, parameters.ContractsAllocationFileName, parameters.MultiplicationFactor, allPnls);
 //make the total result
 var accumulatedProfit = Profit.CalculateAccumulatedProfit(dataHolder, contractsAllocation, strategyList);
-
+double[] dailyPnlsForSharpeCalculation = new double [accumulatedProfit.Count];
 await using StreamWriter outputFile = new StreamWriter(dataFolder + Path.DirectorySeparatorChar + "AccumulatedProfit.csv");
+int i = 0;
 foreach (var row in accumulatedProfit)
 {
     outputFile.WriteLine(row.Date.ToShortDateString() + "," + row.ProfitToday + "," + row.ProfitToDate);
+    dailyPnlsForSharpeCalculation[i++] = row.ProfitToday;
 }
 
+Logger.Log("Overall Sharpe for OutSample is " + Sharpe.CalculateSharpeRatio(dailyPnlsForSharpeCalculation));
+//calculate sharpe for out sample
 return 0;
 
