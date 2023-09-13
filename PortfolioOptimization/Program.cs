@@ -247,7 +247,7 @@ do
 
     if (!parameters.BParallel)
     {
-        optimizer.OptimizeAndUpdate(currentData, strategyList, contractsAllocation, parameters.ContractsRangeStart,
+        optimizer.OptimizeAndUpdate(currentData, contractsAllocation, parameters.ContractsRangeStart,
             parameters.ContractsRangeEnd);
     }
     else
@@ -255,7 +255,7 @@ do
         var allocation = contractsAllocation;
         optimizationTasks.Add(factory.StartNew(() =>
             {
-                optimizer.OptimizeAndUpdate(currentData, strategyList, allocation, parameters.ContractsRangeStart,
+                optimizer.OptimizeAndUpdate(currentData, allocation, parameters.ContractsRangeStart,
                     parameters.ContractsRangeEnd);
             }
             , token));

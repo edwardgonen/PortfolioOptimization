@@ -10,7 +10,7 @@ public class OptimizerContracts
         _algorithmType = algorithmType;
     }
 
-    public void OptimizeAndUpdate(DataHolder currentData, List<string> strategyList, ContractsAllocation contractsAllocation, int contractsRangeStart, int contractsRangeEnd)
+    public void OptimizeAndUpdate(DataHolder currentData, ContractsAllocation contractsAllocation, int contractsRangeStart, int contractsRangeEnd)
     {
         //optimize
 
@@ -19,16 +19,16 @@ public class OptimizerContracts
         switch (_algorithmType)
         {
             case GeneticAlgorithmType.GeneticSharp:
-                gsa = new OptimizationSharpAlgorithm(strategyList.Count, currentData, contractsRangeStart, contractsRangeEnd, _fitnessAlgorithm);
+                gsa = new OptimizationSharpAlgorithm(currentData.StrategyList.Count, currentData, contractsRangeStart, contractsRangeEnd, _fitnessAlgorithm);
                 break;
             case GeneticAlgorithmType.Random:
-                gsa = new RandomAlgorithm(strategyList.Count, contractsRangeStart, contractsRangeEnd);
+                gsa = new RandomAlgorithm(currentData.StrategyList.Count, contractsRangeStart, contractsRangeEnd);
                 break;
             case GeneticAlgorithmType.GradientDescent:
-                gsa = new MyGradientDescentOptimizationAlgorithm(strategyList.Count, currentData, contractsRangeStart, contractsRangeEnd, _fitnessAlgorithm);
+                gsa = new MyGradientDescentOptimizationAlgorithm(currentData.StrategyList.Count, currentData, contractsRangeStart, contractsRangeEnd, _fitnessAlgorithm);
                 break;
             case GeneticAlgorithmType.ByStrategy:
-                gsa = new OptimizationByEachStrategyAlgorithm(strategyList.Count, currentData, contractsRangeStart, contractsRangeEnd, _fitnessAlgorithm);
+                gsa = new OptimizationByEachStrategyAlgorithm(currentData.StrategyList.Count, currentData, contractsRangeStart, contractsRangeEnd, _fitnessAlgorithm);
                 break;
             default:
                 throw new MyException("Algorithm not selected");
@@ -42,7 +42,7 @@ public class OptimizerContracts
         Logger.Log(string.Join(", ", bestChromosome));
         Logger.Log("Best fitness value is " + bestFitness);
         var j = 0;
-        foreach (var strategyName in strategyList)
+        foreach (var strategyName in currentData.StrategyList)
         {
             contractsAllocation.AddAllocation(currentData.InitialData.Last().Date.AddDays(1), strategyName, bestChromosome[j++]);
         }

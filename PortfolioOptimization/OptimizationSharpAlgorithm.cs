@@ -107,7 +107,7 @@ public class OptimizationSharpAlgorithm : IOptimizationAlgorithm
             }
             
             //5. Assign _initialDataHolder = newDataHolder;
-            //6. set calculatedNumberOfStrategies to _initialDataHolder.Strategies.Count;
+            _initialDataHolder = newDataHolder;
         }
 
         
