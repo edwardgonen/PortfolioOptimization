@@ -3,11 +3,8 @@ namespace PortfolioOptimization;
 public class DataHolder
 {
     public List<Row> InitialData { get; private set; } = new();
-    public List<string> StrategyList { get; } = new();
-
-    private DataHolder()
-    {
-    }
+    public List<string> StrategyList { get; private init; } = new();
+    
     public DataHolder(string inputFileName)
     {
         //0. read the input file
@@ -40,7 +37,7 @@ public class DataHolder
             }
             
 
-            var listOfAccumulatedPnl = new double[lineParts.Length - 1];
+            var listOfPnl = new double[lineParts.Length - 1];
             for (var j = 1; j < lineParts.Length; j++)
             {
                 //parse
@@ -49,14 +46,18 @@ public class DataHolder
                     throw new MyException("Wrong PnL format " + lineParts[j] + " at line " + i);
                 }
 
-                listOfAccumulatedPnl[j - 1] = pnl;
+                listOfPnl[j - 1] = pnl;
             }
 
             //add line to data holder
-            Row row = new Row(date, listOfAccumulatedPnl);
+            Row row = new Row(date, listOfPnl);
             InitialData.Add(row);
         }
 
+    }
+
+    public DataHolder()
+    {
     }
 
     public void AddRow(DateTime date, double[] dailyAccumulatedPnlByStrategy)
@@ -66,7 +67,10 @@ public class DataHolder
 
     public DataHolder GetRangeOfData(DateTime startDate, DateTime endDate)
     {
-        DataHolder result = new DataHolder();
+        DataHolder result = new DataHolder
+        {
+            StrategyList = StrategyList
+        };
         if (InitialData.Count <= 0) return result; //just empty
         var rangeOfData = InitialData.FindAll(x => x.Date >= startDate && x.Date <= endDate);
         result.InitialData = rangeOfData;
@@ -76,12 +80,12 @@ public class DataHolder
     public class Row
     {
         public DateTime Date { get; }
-        public double[] DailyAccumulatedPnlByStrategy { get; }
+        public double[] DailyPnlByStrategy { get; }
 
-        public Row(DateTime date, double[] dailyAccumulatedPnlByStrategy)
+        public Row(DateTime date, double[] dailyPnlByStrategy)
         {
             Date = date;
-            DailyAccumulatedPnlByStrategy = dailyAccumulatedPnlByStrategy;
+            DailyPnlByStrategy = dailyPnlByStrategy;
         }
 
     }

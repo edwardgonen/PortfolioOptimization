@@ -64,6 +64,7 @@ public class OptimizerContracts
         SharpeOnEma,
         Sortino,
         MaxProfit,
-        ConstNumberOfContracts
+        ConstNumberOfContracts,
+        Correlation
     }
 }

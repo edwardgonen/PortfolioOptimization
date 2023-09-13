@@ -65,7 +65,7 @@ public class OptimizationByEachStrategyAlgorithm : IOptimizationAlgorithm
         {
             for (int dateRowNumber = 0; dateRowNumber < dataHolder.InitialData.Count; dateRowNumber++)
             {
-                pnlPerStrategy[strategyNumber, dateRowNumber] = dataHolder.InitialData[dateRowNumber].DailyAccumulatedPnlByStrategy[strategyNumber];
+                pnlPerStrategy[strategyNumber, dateRowNumber] = dataHolder.InitialData[dateRowNumber].DailyPnlByStrategy[strategyNumber];
             }
             //calculate rSquared
 
@@ -79,8 +79,8 @@ public class OptimizationByEachStrategyAlgorithm : IOptimizationAlgorithm
         
         for (int strategyNumber = 0; strategyNumber < numberOfStrategies; strategyNumber++)
         {
-            if (dataHolder.InitialData.Last().DailyAccumulatedPnlByStrategy[strategyNumber] <=
-                dataHolder.InitialData.First().DailyAccumulatedPnlByStrategy[strategyNumber] || maxRSquared == 0)
+            if (dataHolder.InitialData.Last().DailyPnlByStrategy[strategyNumber] <=
+                dataHolder.InitialData.First().DailyPnlByStrategy[strategyNumber] || maxRSquared == 0)
             {
                 result[strategyNumber] = minNumOfContracts;
             }
@@ -103,7 +103,7 @@ public class OptimizationByEachStrategyAlgorithm : IOptimizationAlgorithm
         {
             for (int dateRowNumber = 0; dateRowNumber < dataHolder.InitialData.Count; dateRowNumber++)
             {
-                pnlPerStrategy[strategyNumber, dateRowNumber] = dataHolder.InitialData[dateRowNumber].DailyAccumulatedPnlByStrategy[strategyNumber];
+                pnlPerStrategy[strategyNumber, dateRowNumber] = dataHolder.InitialData[dateRowNumber].DailyPnlByStrategy[strategyNumber];
             }
             //calculate sharpe
             sharpePerStrategy[strategyNumber] = Sharpe.CalculateSharpeRatio(Utilities.CustomArray<double>.GetRow(pnlPerStrategy, strategyNumber));
@@ -149,7 +149,7 @@ public class OptimizationByEachStrategyAlgorithm : IOptimizationAlgorithm
         {
             for (int dateRowNumber = 0; dateRowNumber < dataHolder.InitialData.Count; dateRowNumber++)
             {
-                pnlPerStrategy[strategyNumber, dateRowNumber] = dataHolder.InitialData[dateRowNumber].DailyAccumulatedPnlByStrategy[strategyNumber];
+                pnlPerStrategy[strategyNumber, dateRowNumber] = dataHolder.InitialData[dateRowNumber].DailyPnlByStrategy[strategyNumber];
                 profitPerStrategy[strategyNumber] += pnlPerStrategy[strategyNumber, dateRowNumber];
             }
 
@@ -188,7 +188,7 @@ public class OptimizationByEachStrategyAlgorithm : IOptimizationAlgorithm
         {
             for (int dateRowNumber = 0; dateRowNumber < dataHolder.InitialData.Count; dateRowNumber++)
             {
-                pnlPerStrategy[strategyNumber, dateRowNumber] = dataHolder.InitialData[dateRowNumber].DailyAccumulatedPnlByStrategy[strategyNumber];
+                pnlPerStrategy[strategyNumber, dateRowNumber] = dataHolder.InitialData[dateRowNumber].DailyPnlByStrategy[strategyNumber];
             }
             //calculate sharpe
             sortinoPerStrategy[strategyNumber] = Sortino.CalculateSortinoRatio(Utilities.CustomArray<double>.GetRow(pnlPerStrategy, strategyNumber));

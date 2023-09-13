@@ -161,6 +161,8 @@ switch (args.Length)
             fitnessAlgorithm = OptimizerContracts.FitnessAlgorithm.MaxProfit;
         else if (args[6].ToUpper().StartsWith("CS"))
             fitnessAlgorithm = OptimizerContracts.FitnessAlgorithm.ConstNumberOfContracts;
+        else if (args[6].ToUpper().StartsWith("CR"))
+            fitnessAlgorithm = OptimizerContracts.FitnessAlgorithm.Correlation;
         else
             fitnessAlgorithm = OptimizerContracts.FitnessAlgorithm.Sharpe;
         break;
@@ -240,7 +242,6 @@ do
 {
     Logger.Log("Working on in sample from " + startDateOfInSample.ToShortDateString() + " to " + endDateOfInSample.ToShortDateString());
     DataHolder currentData = dataHolder.GetRangeOfData(startDateOfInSample, endDateOfInSample);
-
     var tokenSource = new CancellationTokenSource();
     var token = tokenSource.Token;
 

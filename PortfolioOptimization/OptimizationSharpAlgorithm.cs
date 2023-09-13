@@ -13,9 +13,107 @@ public class OptimizationSharpAlgorithm : IOptimizationAlgorithm
 
         _fitnessAlgorithm = fitnessAlgorithm;
         _initialDataHolder = dataHolder;
-
+        
         int populationSize = 1000;
-        var population = new Population(populationSize, populationSize, new YourCustomClass(numberOfStrategies, minValue, maxValue));
+
+        if (_fitnessAlgorithm == OptimizerContracts.FitnessAlgorithm.Correlation)
+        {
+            double correlationThreshold = 0.7;
+            List<AccumulatedProfitByStrategy> accumulatedPnlByStrategies = new();
+            //if we are working with correlation do the following:
+            //1. create for each strategy accumulated Pnl
+            HashSet<string> allStrategies = new HashSet<string>();
+            foreach (var strategyName in _initialDataHolder.StrategyList)
+            {
+                allStrategies.Add(strategyName);
+                accumulatedPnlByStrategies.Add(new AccumulatedProfitByStrategy(){StrategyName = strategyName});
+            }
+            for (var rowNumber = 0; rowNumber < _initialDataHolder.InitialData.Count; rowNumber++)
+            {
+                for (int i = 0; i < _initialDataHolder.StrategyList.Count; i++)
+                {
+                    if (rowNumber == 0)
+                    {
+                        accumulatedPnlByStrategies[i].AccumulatedProfitDaily.Add(
+                            _initialDataHolder.InitialData[rowNumber].DailyPnlByStrategy[i]);
+                    }
+                    else
+                    {
+                        accumulatedPnlByStrategies[i].AccumulatedProfitDaily.Add(
+                            accumulatedPnlByStrategies[i].AccumulatedProfitDaily[rowNumber - 1] +
+                            _initialDataHolder.InitialData[rowNumber].DailyPnlByStrategy[i]);
+                    }
+
+                }
+            }
+            //2. given correlation threshold distribute all strategies by correlated sets
+            List<HashSet<string>> correlatedStrategies = new List<HashSet<string>>();
+            foreach (var strategyName in allStrategies)
+            {                    
+                //add new set of correlated strategies
+                correlatedStrategies.Add(new HashSet<string>());
+                //and add ourself to it
+                correlatedStrategies.Last().Add(strategyName);
+                //remove from all
+                allStrategies.RemoveWhere(s => s == strategyName);
+                var xProfits = 
+                    accumulatedPnlByStrategies.Find(s => s.StrategyName == strategyName)?.AccumulatedProfitDaily;
+                
+                foreach (var correlatedStrategyName in allStrategies)
+                {
+                    var yProfits = 
+                        accumulatedPnlByStrategies.Find(s => s.StrategyName == correlatedStrategyName)?.AccumulatedProfitDaily;
+
+                    double correlation = 0;
+                    //check for correlation
+                    if (xProfits != null && yProfits != null)
+                    {
+                        correlation = Correlation.CalculateCorrelation(xProfits, yProfits);
+                    }
+                    else
+                    {
+                        throw new MyException("One of profit lists is null");
+                    }
+                    
+                    //if correlation is higher than threshold 
+                    if (correlation >= correlationThreshold)
+                    {
+                        //add the strategy to our set and remove from allStrategies
+                        correlatedStrategies.Last().Add(correlatedStrategyName);
+                        allStrategies.RemoveWhere(s => s == correlatedStrategyName);
+                    }
+                }
+            }
+            DataHolder newDataHolder = new DataHolder();
+            //3. select from each set one strategy (just for beginning)
+            foreach (var set in correlatedStrategies)
+            {
+                string strategyName = set.First();
+                newDataHolder.StrategyList.Add(strategyName);
+            }
+            //4. Go over the create a new initialDataHolder and copy from dataHolder to it only one
+            //   strategy from each correlated set
+            foreach (var row in dataHolder.InitialData)
+            {
+                int i = 0;                    
+                double[] selectedPnls = new double[newDataHolder.StrategyList.Count];
+                foreach (var strategy in newDataHolder.StrategyList)
+                {
+                    int indexOfStrategyInInitialData = dataHolder.StrategyList.IndexOf(strategy);
+                    selectedPnls[i++] = row.DailyPnlByStrategy[indexOfStrategyInInitialData];
+
+                }                    
+                newDataHolder.InitialData.Add(new DataHolder.Row(row.Date, selectedPnls));
+            }
+            
+            //5. Assign _initialDataHolder = newDataHolder;
+            //6. set calculatedNumberOfStrategies to _initialDataHolder.Strategies.Count;
+        }
+
+        
+
+        var population = new Population(populationSize, populationSize, 
+            new MyChromosome(_initialDataHolder.StrategyList.Count, minValue, maxValue));
         var selection = new EliteSelection();
         var crossover = new UniformCrossover();
         var mutation = new UniformMutation(true);
@@ -37,7 +135,7 @@ public class OptimizationSharpAlgorithm : IOptimizationAlgorithm
         var result = new int[_ga.BestChromosome.Length];
         for (int i = 0; i < _ga.BestChromosome.Length; i++)
         {
-            result[i] = Convert.ToInt32(((YourCustomClass)_ga.BestChromosome).GetGene(i).Value);
+            result[i] = Convert.ToInt32(((MyChromosome)_ga.BestChromosome).GetGene(i).Value);
         }
         return result;
     }
@@ -55,7 +153,7 @@ public class OptimizationSharpAlgorithm : IOptimizationAlgorithm
         int[] targetArray = new int[chromosome.Length];
         for (int i = 0; i < chromosome.Length; i++)
         {
-            targetArray[i] = Convert.ToInt32(((YourCustomClass) chromosome).GetGene(i).Value);
+            targetArray[i] = Convert.ToInt32(((MyChromosome) chromosome).GetGene(i).Value);
         }
         
 
@@ -78,6 +176,9 @@ public class OptimizationSharpAlgorithm : IOptimizationAlgorithm
             case OptimizerContracts.FitnessAlgorithm.MaxProfit:
                 evaluationValue = MaxProfit.CalculateAccumulatedProfit(targetArray, _initialDataHolder);
                 break;
+            case OptimizerContracts.FitnessAlgorithm.Correlation:
+                evaluationValue = Sharpe.CalculateSharpeForOnePermutation(targetArray, _initialDataHolder);
+                break;
             case OptimizerContracts.FitnessAlgorithm.Sharpe:
             default:
                 evaluationValue = Sharpe.CalculateSharpeForOnePermutation(targetArray, _initialDataHolder);
@@ -86,13 +187,13 @@ public class OptimizationSharpAlgorithm : IOptimizationAlgorithm
         return evaluationValue;
     }
 }
-public class YourCustomClass : ChromosomeBase
+public class MyChromosome : ChromosomeBase
 {
     private readonly int _numberOfStrategies;
     private readonly int _minValue;
     private readonly int _maxValue;
 
-    public YourCustomClass(int numberOfStrategies, int minValue, int maxValue) : base(numberOfStrategies)
+    public MyChromosome(int numberOfStrategies, int minValue, int maxValue) : base(numberOfStrategies)
     {
         _numberOfStrategies = numberOfStrategies;
         _minValue = minValue;
@@ -114,6 +215,12 @@ public class YourCustomClass : ChromosomeBase
 
     public override IChromosome CreateNew()
     {
-        return new YourCustomClass(_numberOfStrategies, _minValue, _maxValue);
+        return new MyChromosome(_numberOfStrategies, _minValue, _maxValue);
     }
+}
+
+public class AccumulatedProfitByStrategy
+{
+    public string StrategyName = string.Empty;
+    public readonly List<double> AccumulatedProfitDaily = new();
 }

@@ -10,6 +10,7 @@ public static class Logger
 
 public static class Utilities
 {
+
     public static double CalculateExponentialFunctionValue(double input)
     {
         if (input < 0 || input > 1)
@@ -144,12 +145,57 @@ public static class Utilities
             totalDailyPnLs[j] = 0;
             for (var i = 0; i < array.Length; i++)
             {
-                totalDailyPnLs[j] += initialDataHolder.InitialData[j].DailyAccumulatedPnlByStrategy[i] * array[i];
+                totalDailyPnLs[j] += initialDataHolder.InitialData[j].DailyPnlByStrategy[i] * array[i];
             }
         }
 
         return totalDailyPnLs;
     }
+}
+
+public abstract class Correlation
+{
+    public static double CalculateCorrelation(List<double> x, List<double> y)
+    {
+        //copy to arrays 
+        var xArray = x.ToArray();
+        var yArray = y.ToArray();
+        return CalculateCorrelation(xArray, yArray);
+    }
+    static double CalculateCorrelation(double[] x, double[] y)
+    {
+        // Check if both arrays have the same length.
+        if (x.Length != y.Length)
+        {
+            throw new ArgumentException("Arrays must have the same length.");
+        }
+
+        int n = x.Length;
+
+        // Calculate the means of both arrays.
+        double meanX = x.Average();
+        double meanY = y.Average();
+
+        // Calculate the numerator and denominators of the Pearson correlation formula.
+        double numerator = 0;
+        double denominatorX = 0;
+        double denominatorY = 0;
+
+        for (int i = 0; i < n; i++)
+        {
+            double deltaX = x[i] - meanX;
+            double deltaY = y[i] - meanY;
+            numerator += deltaX * deltaY;
+            denominatorX += deltaX * deltaX;
+            denominatorY += deltaY * deltaY;
+        }
+
+        // Calculate the correlation coefficient.
+        double correlation = numerator / (Math.Sqrt(denominatorX) * Math.Sqrt(denominatorY));
+
+        return correlation;
+    }
+    
 }
 
 public abstract class Profit
@@ -164,7 +210,7 @@ public abstract class Profit
             totalDailyPnLs[j] = 0;
             for (var i = 0; i < array.Length; i++)
             {
-                totalDailyPnLs[j] += initialDataHolder.InitialData[j].DailyAccumulatedPnlByStrategy[i] * array[i];
+                totalDailyPnLs[j] += initialDataHolder.InitialData[j].DailyPnlByStrategy[i] * array[i];
                 totalProfit += totalDailyPnLs[j];
             }
         }
@@ -181,10 +227,10 @@ public abstract class Profit
         foreach (var row in initialData.InitialData)
         {
             double dailyProfit = 0;
-            for (var i = 0; i < row.DailyAccumulatedPnlByStrategy.Length; i++)
+            for (var i = 0; i < row.DailyPnlByStrategy.Length; i++)
             {
                 double allocationForStrategyToday = contractsAllocation.GetAllocation(row.Date, strategiesNames[i]);
-                dailyProfit += row.DailyAccumulatedPnlByStrategy[i] * allocationForStrategyToday;
+                dailyProfit += row.DailyPnlByStrategy[i] * allocationForStrategyToday;
             }
 
             accumulatedProfit += dailyProfit;
