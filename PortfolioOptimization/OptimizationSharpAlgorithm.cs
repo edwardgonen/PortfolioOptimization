@@ -6,13 +6,20 @@ public class OptimizationSharpAlgorithm : IOptimizationAlgorithm
 {
     private readonly GeneticAlgorithm _ga;
     private readonly OptimizerContracts.FitnessAlgorithm _fitnessAlgorithm;
-    private readonly DataHolder _initialDataHolder;
+    private readonly DataHolder _dataHolder;
+    private readonly DataHolder _originalDataHolder;
+    private readonly int _maxValue;
+    private readonly int _minValue;
+    private List<HashSet<string>> _correlatedStrategies;
 
     public OptimizationSharpAlgorithm(int numberOfStrategies, DataHolder dataHolder, int minValue, int maxValue, OptimizerContracts.FitnessAlgorithm fitnessAlgorithm)
     {
 
         _fitnessAlgorithm = fitnessAlgorithm;
-        _initialDataHolder = dataHolder;
+        _dataHolder = dataHolder;
+        _originalDataHolder = dataHolder;
+        _maxValue = maxValue;
+        _minValue = minValue;
         
         int populationSize = 1000;
 
@@ -23,37 +30,37 @@ public class OptimizationSharpAlgorithm : IOptimizationAlgorithm
             //if we are working with correlation do the following:
             //1. create for each strategy accumulated Pnl
             HashSet<string> allStrategies = new HashSet<string>();
-            foreach (var strategyName in _initialDataHolder.StrategyList)
+            foreach (var strategyName in _dataHolder.StrategyList)
             {
                 allStrategies.Add(strategyName);
                 accumulatedPnlByStrategies.Add(new AccumulatedProfitByStrategy(){StrategyName = strategyName});
             }
-            for (var rowNumber = 0; rowNumber < _initialDataHolder.InitialData.Count; rowNumber++)
+            for (var rowNumber = 0; rowNumber < _dataHolder.InitialData.Count; rowNumber++)
             {
-                for (int i = 0; i < _initialDataHolder.StrategyList.Count; i++)
+                for (int i = 0; i < _dataHolder.StrategyList.Count; i++)
                 {
                     if (rowNumber == 0)
                     {
                         accumulatedPnlByStrategies[i].AccumulatedProfitDaily.Add(
-                            _initialDataHolder.InitialData[rowNumber].DailyPnlByStrategy[i]);
+                            _dataHolder.InitialData[rowNumber].DailyPnlByStrategy[i]);
                     }
                     else
                     {
                         accumulatedPnlByStrategies[i].AccumulatedProfitDaily.Add(
                             accumulatedPnlByStrategies[i].AccumulatedProfitDaily[rowNumber - 1] +
-                            _initialDataHolder.InitialData[rowNumber].DailyPnlByStrategy[i]);
+                            _dataHolder.InitialData[rowNumber].DailyPnlByStrategy[i]);
                     }
 
                 }
             }
             //2. given correlation threshold distribute all strategies by correlated sets
-            List<HashSet<string>> correlatedStrategies = new List<HashSet<string>>();
+            _correlatedStrategies = new List<HashSet<string>>();
             foreach (var strategyName in allStrategies)
             {                    
                 //add new set of correlated strategies
-                correlatedStrategies.Add(new HashSet<string>());
+                _correlatedStrategies.Add(new HashSet<string>());
                 //and add ourself to it
-                correlatedStrategies.Last().Add(strategyName);
+                _correlatedStrategies.Last().Add(strategyName);
                 //remove from all
                 allStrategies.RemoveWhere(s => s == strategyName);
                 var xProfits = 
@@ -79,16 +86,21 @@ public class OptimizationSharpAlgorithm : IOptimizationAlgorithm
                     if (correlation >= correlationThreshold)
                     {
                         //add the strategy to our set and remove from allStrategies
-                        correlatedStrategies.Last().Add(correlatedStrategyName);
+                        _correlatedStrategies.Last().Add(correlatedStrategyName);
                         allStrategies.RemoveWhere(s => s == correlatedStrategyName);
                     }
                 }
             }
             DataHolder newDataHolder = new DataHolder();
             //3. select from each set one strategy (just for beginning)
-            foreach (var set in correlatedStrategies)
+            foreach (var set in _correlatedStrategies)
             {
-                string strategyName = set.First();
+                //string strategyName = set.First();
+                string strategyName = set.FirstOrDefault(x => x.Contains("VWAPSMA"));
+                if (strategyName == default)
+                {
+                   --- strategyName = set.First();
+                }
                 newDataHolder.StrategyList.Add(strategyName);
             }
             //4. Go over the create a new initialDataHolder and copy from dataHolder to it only one
@@ -107,13 +119,13 @@ public class OptimizationSharpAlgorithm : IOptimizationAlgorithm
             }
             
             //5. Assign _initialDataHolder = newDataHolder;
-            _initialDataHolder = newDataHolder;
+            _dataHolder = newDataHolder;
         }
 
         
 
         var population = new Population(populationSize, populationSize, 
-            new MyChromosome(_initialDataHolder.StrategyList.Count, minValue, maxValue));
+            new MyChromosome(_dataHolder.StrategyList.Count, minValue, maxValue));
         var selection = new EliteSelection();
         var crossover = new UniformCrossover();
         var mutation = new UniformMutation(true);
@@ -132,11 +144,22 @@ public class OptimizationSharpAlgorithm : IOptimizationAlgorithm
 
     public int[] BestChromosome()
     {
-        var result = new int[_ga.BestChromosome.Length];
-        for (int i = 0; i < _ga.BestChromosome.Length; i++)
+        var result = new int[_originalDataHolder.StrategyList.Count];
+        //produce a new chromosome where all the correlated strategies hae 0
+        for (int i = 0; i < _originalDataHolder.StrategyList.Count; i++)
         {
-            result[i] = Convert.ToInt32(((MyChromosome)_ga.BestChromosome).GetGene(i).Value);
+            //find index of strategy in new dataholder
+            int indexOfStrategy = _dataHolder.StrategyList.IndexOf(_originalDataHolder.StrategyList[i]);
+            if (indexOfStrategy >= 0)
+            {
+                result[i] = Convert.ToInt32(((MyChromosome)_ga.BestChromosome).GetGene(indexOfStrategy).Value);
+            }
+            else
+            {
+                result[i] = _maxValue / 6; //should be real value. maybe Gene divided by num of correlated strategies?
+            }
         }
+
         return result;
     }
 
@@ -161,27 +184,27 @@ public class OptimizationSharpAlgorithm : IOptimizationAlgorithm
         switch (_fitnessAlgorithm)
         {
             case OptimizerContracts.FitnessAlgorithm.Linearity:
-                evaluationValue = LinearInterpolation.CalculateRSquaredForOnePermutation(targetArray, _initialDataHolder);
+                evaluationValue = LinearInterpolation.CalculateRSquaredForOnePermutation(targetArray, _dataHolder);
                 break;
             case OptimizerContracts.FitnessAlgorithm.ProfitByDrawdown:
-                evaluationValue = Profit.CalculateProfitForOnePermutation(targetArray, _initialDataHolder);
-                evaluationValue /= DrawDown.CalculateMaxDrawdownForOnePermutation(targetArray, _initialDataHolder);
+                evaluationValue = Profit.CalculateProfitForOnePermutation(targetArray, _dataHolder);
+                evaluationValue /= DrawDown.CalculateMaxDrawdownForOnePermutation(targetArray, _dataHolder);
                 break;
             case OptimizerContracts.FitnessAlgorithm.SharpeOnEma:
-                evaluationValue = SharpeOnEma.CalculateSharpeOnEmaForOnePermutation(targetArray, _initialDataHolder);
+                evaluationValue = SharpeOnEma.CalculateSharpeOnEmaForOnePermutation(targetArray, _dataHolder);
                 break;
             case OptimizerContracts.FitnessAlgorithm.Sortino:
-                evaluationValue = Sortino.CalculateSortinoForOnePermutation(targetArray, _initialDataHolder);
+                evaluationValue = Sortino.CalculateSortinoForOnePermutation(targetArray, _dataHolder);
                 break;
             case OptimizerContracts.FitnessAlgorithm.MaxProfit:
-                evaluationValue = MaxProfit.CalculateAccumulatedProfit(targetArray, _initialDataHolder);
+                evaluationValue = MaxProfit.CalculateAccumulatedProfit(targetArray, _dataHolder);
                 break;
             case OptimizerContracts.FitnessAlgorithm.Correlation:
-                evaluationValue = Sharpe.CalculateSharpeForOnePermutation(targetArray, _initialDataHolder);
+                evaluationValue = Sharpe.CalculateSharpeForOnePermutation(targetArray, _dataHolder);
                 break;
             case OptimizerContracts.FitnessAlgorithm.Sharpe:
             default:
-                evaluationValue = Sharpe.CalculateSharpeForOnePermutation(targetArray, _initialDataHolder);
+                evaluationValue = Sharpe.CalculateSharpeForOnePermutation(targetArray, _dataHolder);
                 break;
         }
         return evaluationValue;
