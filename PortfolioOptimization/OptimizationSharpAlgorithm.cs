@@ -25,32 +25,22 @@ public class OptimizationSharpAlgorithm : IOptimizationAlgorithm
 
         if (_fitnessAlgorithm == OptimizerContracts.FitnessAlgorithm.Correlation)
         {
-            double correlationThreshold = 0.7;
-            List<AccumulatedProfitByStrategy> accumulatedPnlByStrategies = new();
+            double correlationThreshold = -0.4;
+            List<DailyPnlByStrategy> accumulatedPnlByStrategies = new();
             //if we are working with correlation do the following:
             //1. create for each strategy accumulated Pnl
             HashSet<string> allStrategies = new HashSet<string>();
             foreach (var strategyName in _dataHolder.StrategyList)
             {
                 allStrategies.Add(strategyName);
-                accumulatedPnlByStrategies.Add(new AccumulatedProfitByStrategy(){StrategyName = strategyName});
+                accumulatedPnlByStrategies.Add(new DailyPnlByStrategy(){StrategyName = strategyName});
             }
             for (var rowNumber = 0; rowNumber < _dataHolder.InitialData.Count; rowNumber++)
             {
                 for (int i = 0; i < _dataHolder.StrategyList.Count; i++)
                 {
-                    if (rowNumber == 0)
-                    {
-                        accumulatedPnlByStrategies[i].AccumulatedProfitDaily.Add(
-                            _dataHolder.InitialData[rowNumber].DailyPnlByStrategy[i]);
-                    }
-                    else
-                    {
-                        accumulatedPnlByStrategies[i].AccumulatedProfitDaily.Add(
-                            accumulatedPnlByStrategies[i].AccumulatedProfitDaily[rowNumber - 1] +
-                            _dataHolder.InitialData[rowNumber].DailyPnlByStrategy[i]);
-                    }
-
+                    accumulatedPnlByStrategies[i].DailyPnl.Add(
+                        _dataHolder.InitialData[rowNumber].DailyPnlByStrategy[i]);
                 }
             }
             //2. given correlation threshold distribute all strategies by correlated sets
@@ -64,12 +54,12 @@ public class OptimizationSharpAlgorithm : IOptimizationAlgorithm
                 //remove from all
                 allStrategies.RemoveWhere(s => s == strategyName);
                 var xProfits = 
-                    accumulatedPnlByStrategies.Find(s => s.StrategyName == strategyName)?.AccumulatedProfitDaily;
+                    accumulatedPnlByStrategies.Find(s => s.StrategyName == strategyName)?.DailyPnl;
                 
                 foreach (var correlatedStrategyName in allStrategies)
                 {
                     var yProfits = 
-                        accumulatedPnlByStrategies.Find(s => s.StrategyName == correlatedStrategyName)?.AccumulatedProfitDaily;
+                        accumulatedPnlByStrategies.Find(s => s.StrategyName == correlatedStrategyName)?.DailyPnl;
 
                     double correlation = 0;
                     //check for correlation
@@ -83,7 +73,7 @@ public class OptimizationSharpAlgorithm : IOptimizationAlgorithm
                     }
                     
                     //if correlation is higher than threshold 
-                    if (correlation >= correlationThreshold)
+                    if (correlation <= correlationThreshold)
                     {
                         //add the strategy to our set and remove from allStrategies
                         _correlatedStrategies.Last().Add(correlatedStrategyName);
@@ -95,13 +85,7 @@ public class OptimizationSharpAlgorithm : IOptimizationAlgorithm
             //3. select from each set one strategy (just for beginning)
             foreach (var set in _correlatedStrategies)
             {
-                //string strategyName = set.First();
-                string strategyName = set.FirstOrDefault(x => x.Contains("VWAPSMA"));
-                if (strategyName == default)
-                {
-                    //TODO Check
-                    strategyName = set.First();
-                }
+                string strategyName = set.First();
                 newDataHolder.StrategyList.Add(strategyName);
             }
             //4. Go over the create a new initialDataHolder and copy from dataHolder to it only one
@@ -244,8 +228,8 @@ public class MyChromosome : ChromosomeBase
     }
 }
 
-public class AccumulatedProfitByStrategy
+public class DailyPnlByStrategy
 {
     public string StrategyName = string.Empty;
-    public readonly List<double> AccumulatedProfitDaily = new();
+    public readonly List<double> DailyPnl = new();
 }
