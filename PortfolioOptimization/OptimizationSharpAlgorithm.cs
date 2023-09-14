@@ -99,7 +99,8 @@ public class OptimizationSharpAlgorithm : IOptimizationAlgorithm
                 string strategyName = set.FirstOrDefault(x => x.Contains("VWAPSMA"));
                 if (strategyName == default)
                 {
-                   --- strategyName = set.First();
+                    //TODO Check
+                    strategyName = set.First();
                 }
                 newDataHolder.StrategyList.Add(strategyName);
             }
@@ -156,6 +157,7 @@ public class OptimizationSharpAlgorithm : IOptimizationAlgorithm
             }
             else
             {
+                //TODO check
                 result[i] = _maxValue / 6; //should be real value. maybe Gene divided by num of correlated strategies?
             }
         }
