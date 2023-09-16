@@ -109,6 +109,8 @@ switch (args.Length)
             algorithmType = OptimizerContracts.GeneticAlgorithmType.Random;
         else if (args[5].ToUpper().StartsWith("G"))
             algorithmType = OptimizerContracts.GeneticAlgorithmType.GradientDescent;
+        else if (args[5].ToUpper().StartsWith("D"))
+            algorithmType = OptimizerContracts.GeneticAlgorithmType.DynamicProgramming;
         else if (args[5].ToUpper().StartsWith("O"))
             algorithmType = OptimizerContracts.GeneticAlgorithmType.ByStrategy;
         else
@@ -143,6 +145,8 @@ switch (args.Length)
             algorithmType = OptimizerContracts.GeneticAlgorithmType.Random;
         else if (args[5].ToUpper().StartsWith("G"))
             algorithmType = OptimizerContracts.GeneticAlgorithmType.GradientDescent;
+        else if (args[5].ToUpper().StartsWith("D"))
+            algorithmType = OptimizerContracts.GeneticAlgorithmType.DynamicProgramming;
         else if (args[5].ToUpper().StartsWith("O"))
             algorithmType = OptimizerContracts.GeneticAlgorithmType.ByStrategy;
         else
