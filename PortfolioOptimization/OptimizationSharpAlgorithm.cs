@@ -21,11 +21,11 @@ public class OptimizationSharpAlgorithm : IOptimizationAlgorithm
         _maxValue = maxValue;
         _minValue = minValue;
         
-        int populationSize = 1000;
+
 
         if (_fitnessAlgorithm == OptimizerContracts.FitnessAlgorithm.Correlation)
         {
-            double correlationThreshold = -0.4;
+            double correlationThreshold = 0.5;
             List<DailyPnlByStrategy> accumulatedPnlByStrategies = new();
             //if we are working with correlation do the following:
             //1. create for each strategy accumulated Pnl
@@ -35,12 +35,12 @@ public class OptimizationSharpAlgorithm : IOptimizationAlgorithm
                 allStrategies.Add(strategyName);
                 accumulatedPnlByStrategies.Add(new DailyPnlByStrategy(){StrategyName = strategyName});
             }
-            for (var rowNumber = 0; rowNumber < _dataHolder.InitialData.Count; rowNumber++)
+            foreach (var row in _dataHolder.InitialData)
             {
                 for (int i = 0; i < _dataHolder.StrategyList.Count; i++)
                 {
                     accumulatedPnlByStrategies[i].DailyPnl.Add(
-                        _dataHolder.InitialData[rowNumber].DailyPnlByStrategy[i]);
+                        row.DailyPnlByStrategy[i]);
                 }
             }
             //2. given correlation threshold distribute all strategies by correlated sets
@@ -61,7 +61,7 @@ public class OptimizationSharpAlgorithm : IOptimizationAlgorithm
                     var yProfits = 
                         accumulatedPnlByStrategies.Find(s => s.StrategyName == correlatedStrategyName)?.DailyPnl;
 
-                    double correlation = 0;
+                    double correlation;
                     //check for correlation
                     if (xProfits != null && yProfits != null)
                     {
@@ -73,7 +73,7 @@ public class OptimizationSharpAlgorithm : IOptimizationAlgorithm
                     }
                     
                     //if correlation is higher than threshold 
-                    if (correlation <= correlationThreshold)
+                    if (correlation >= correlationThreshold)
                     {
                         //add the strategy to our set and remove from allStrategies
                         _correlatedStrategies.Last().Add(correlatedStrategyName);
@@ -85,6 +85,7 @@ public class OptimizationSharpAlgorithm : IOptimizationAlgorithm
             //3. select from each set one strategy (just for beginning)
             foreach (var set in _correlatedStrategies)
             {
+                //TODO should we take just first or select something?
                 string strategyName = set.First();
                 newDataHolder.StrategyList.Add(strategyName);
             }
@@ -108,10 +109,14 @@ public class OptimizationSharpAlgorithm : IOptimizationAlgorithm
         }
 
         
-
+        int populationSize = 1000;
         var population = new Population(populationSize, populationSize, 
             new MyChromosome(_dataHolder.StrategyList.Count, minValue, maxValue));
-        var selection = new EliteSelection();
+        var selection = new EliteSelection(); //our
+
+        
+        
+        
         var crossover = new UniformCrossover();
         var mutation = new UniformMutation(true);
         var fitness = new FuncFitness(EvaluateFitness);
@@ -213,7 +218,6 @@ public class MyChromosome : ChromosomeBase
             ReplaceGene(i, GenerateGene(i));
         }
     }
-
 
     public sealed override Gene GenerateGene(int geneIndex)
     {
