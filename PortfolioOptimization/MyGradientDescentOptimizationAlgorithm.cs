@@ -9,7 +9,7 @@ public class MyGradientDescentOptimizationAlgorithm : IOptimizationAlgorithm
     private static readonly Random RandomGenerator = new Random();
     private readonly int _solutionArrayLength;
 
-    private const int MaxIterations = 1000;
+    private const int MaxIterations = 5000;
     private const double LearningRate = 0.1;
     
     private readonly int _minValue;
@@ -20,9 +20,9 @@ public class MyGradientDescentOptimizationAlgorithm : IOptimizationAlgorithm
     public MyGradientDescentOptimizationAlgorithm(int numberOfStrategies, DataHolder dataHolder, int minValue,
         int maxValue, OptimizerContracts.FitnessAlgorithm fitnessAlgorithm)
     {
-        this._solutionArrayLength = numberOfStrategies;
-        this._minValue = minValue;
-        this._maxValue = maxValue;
+        _solutionArrayLength = numberOfStrategies;
+        _minValue = minValue;
+        _maxValue = maxValue;
         _initialDataHolder = dataHolder;
         _finalSolution = new int[_solutionArrayLength];
         _fitnessAlgorithm = fitnessAlgorithm;
@@ -100,6 +100,9 @@ public class MyGradientDescentOptimizationAlgorithm : IOptimizationAlgorithm
             case OptimizerContracts.FitnessAlgorithm.SharpeOnEma:
                 evaluationValue = SharpeOnEma.CalculateSharpeOnEmaForOnePermutation(chromosome, _initialDataHolder);
                 break;
+            case OptimizerContracts.FitnessAlgorithm.MaxProfit:
+                evaluationValue = MaxProfit.CalculateAccumulatedProfit(chromosome, _initialDataHolder);
+                break;
             case OptimizerContracts.FitnessAlgorithm.Sortino:
                 evaluationValue = Sortino.CalculateSortinoForOnePermutation(chromosome, _initialDataHolder);
                 break;
@@ -109,7 +112,7 @@ public class MyGradientDescentOptimizationAlgorithm : IOptimizationAlgorithm
                 break;
         }
 
-        _bestFitnessValue = evaluationValue;
-        return evaluationValue;
+        _bestFitnessValue = 1/evaluationValue; 
+        return _bestFitnessValue;
     }
 }
