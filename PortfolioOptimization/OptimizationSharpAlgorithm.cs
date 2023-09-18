@@ -132,17 +132,17 @@ public class OptimizationSharpAlgorithm : IOptimizationAlgorithm
         _ga.Start();
     }
 
-    public int[] BestChromosome()
+    public double[] BestChromosome()
     {
-        var result = new int[_originalDataHolder.StrategyList.Count];
+        var result = new double[_originalDataHolder.StrategyList.Count];
         //produce a new chromosome where all the correlated strategies hae 0
         for (int i = 0; i < _originalDataHolder.StrategyList.Count; i++)
         {
-            //find index of strategy in new dataholder
+            //find index of strategy in new data holder
             int indexOfStrategy = _dataHolder.StrategyList.IndexOf(_originalDataHolder.StrategyList[i]);
             if (indexOfStrategy >= 0)
             {
-                result[i] = Convert.ToInt32(((MyChromosome)_ga.BestChromosome).GetGene(indexOfStrategy).Value);
+                result[i] = Convert.ToDouble(((MyChromosome)_ga.BestChromosome).GetGene(indexOfStrategy).Value);
             }
             else
             {
@@ -164,10 +164,10 @@ public class OptimizationSharpAlgorithm : IOptimizationAlgorithm
     {
 
 
-        int[] targetArray = new int[chromosome.Length];
+        double[] targetArray = new double[chromosome.Length];
         for (int i = 0; i < chromosome.Length; i++)
         {
-            targetArray[i] = Convert.ToInt32(((MyChromosome) chromosome).GetGene(i).Value);
+            targetArray[i] = Convert.ToDouble(((MyChromosome) chromosome).GetGene(i).Value);
         }
         
 

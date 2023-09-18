@@ -136,7 +136,7 @@ public static class Utilities
     }
     
 
-    public static double[] CalculateDailyPnls(int[] array, DataHolder initialDataHolder)
+    public static double[] CalculateDailyPnls(double[] array, DataHolder initialDataHolder)
     {
         double[] totalDailyPnLs = new double[initialDataHolder.InitialData.Count];
         
@@ -200,7 +200,7 @@ public abstract class Correlation
 
 public abstract class Profit
 {
-    public static double CalculateProfitForOnePermutation(int[] array, DataHolder initialDataHolder)
+    public static double CalculateProfitForOnePermutation(double[] array, DataHolder initialDataHolder)
     {
         double[] totalDailyPnLs = new double[initialDataHolder.InitialData.Count];
         
@@ -250,7 +250,7 @@ public abstract class Profit
 
 public abstract class Linearity
 {
-    public static double CalculateLinearityForOnePermutation(int[] array, DataHolder initialDataHolder)
+    public static double CalculateLinearityForOnePermutation(double[] array, DataHolder initialDataHolder)
     {
         double[] totalDailyPnLs = Utilities.CalculateDailyPnls(array, initialDataHolder);
         double tmp = Utilities.CalculateStandardDeviation(totalDailyPnLs);
@@ -262,7 +262,7 @@ public abstract class Linearity
 
 public abstract class MaxProfit
 {
-    public static double CalculateAccumulatedProfit(int[] array, DataHolder initialDataHolder)
+    public static double CalculateAccumulatedProfit(double[] array, DataHolder initialDataHolder)
     {
         double[] totalDailyPnLs = Utilities.CalculateDailyPnls(array, initialDataHolder);
         return totalDailyPnLs.Sum();
@@ -273,7 +273,7 @@ public abstract class Sharpe
     
     private static readonly double RiskFreeRate = 15.8745078664;
 
-    public static double CalculateSharpeForOnePermutation(int[] array, DataHolder initialDataHolder)
+    public static double CalculateSharpeForOnePermutation(double[] array, DataHolder initialDataHolder)
     {
         double[] totalDailyPnLs = Utilities.CalculateDailyPnls(array, initialDataHolder);
         var sharpe = CalculateSharpeRatio(totalDailyPnLs);
@@ -296,7 +296,7 @@ public abstract class Sharpe
 
 public abstract class Sortino
 {
-    public static double CalculateSortinoForOnePermutation(int[] array, DataHolder initialDataHolder)
+    public static double CalculateSortinoForOnePermutation(double[] array, DataHolder initialDataHolder)
     {
         double[] totalDailyPnLs = Utilities.CalculateDailyPnls(array, initialDataHolder);
         var sortino = CalculateSortinoRatio(totalDailyPnLs);
@@ -349,7 +349,7 @@ public abstract class SharpeOnEma
     private static readonly double RiskFreeRate = 15.8745078664;
     private static readonly int EmaPeriod = 50;
 
-    public static double CalculateSharpeOnEmaForOnePermutation(int[] array, DataHolder initialDataHolder)
+    public static double CalculateSharpeOnEmaForOnePermutation(double[] array, DataHolder initialDataHolder)
     {
         double[] totalDailyPnLs = Utilities.CalculateDailyPnls(array, initialDataHolder);
         totalDailyPnLs = Utilities.CalculateEma(totalDailyPnLs, Math.Min(EmaPeriod, totalDailyPnLs.Length));
@@ -371,7 +371,7 @@ public abstract class SharpeOnEma
 }
 public abstract class DrawDown
 {
-    public static double CalculateMaxDrawdownForOnePermutation(int[] array, DataHolder initialDataHolder)
+    public static double CalculateMaxDrawdownForOnePermutation(double[] array, DataHolder initialDataHolder)
     {
         double[] totalDailyPnLs = Utilities.CalculateDailyPnls(array, initialDataHolder);
         
@@ -392,8 +392,9 @@ public abstract class DrawDown
 }
     public abstract class LinearInterpolation
     {
-        public static double CalculateRSquaredForOnePermutation(int[] array, DataHolder initialDataHolder)
+        public static double CalculateRSquaredForOnePermutation(double[] array, DataHolder initialDataHolder)
         {
+            if (initialDataHolder.InitialData.Count < 2) return 0; //cannot interpolate on less than 2 point
             double[] totalDailyPnLs = Utilities.CalculateDailyPnls(array, initialDataHolder);
             double[] accumulatedDailyPnls = new double[totalDailyPnLs.Length];
             for (int i = 0; i < totalDailyPnLs.Length; i++)
@@ -404,7 +405,7 @@ public abstract class DrawDown
             var yDoubles = accumulatedDailyPnls;            
             var xDoubles = new double[yDoubles.Length];
             for (int i = 0; i < yDoubles.Length; i++) xDoubles[i] = i;
-            LinearInterpolation.CalculateLinearInterpolation(xDoubles, yDoubles, out double k, out double b);
+            CalculateLinearInterpolation(xDoubles, yDoubles, out double k, out double b);
             var rSquaredPerStrategy = LinearInterpolation.CalculateRSquared(xDoubles, yDoubles, k, b);
             return rSquaredPerStrategy;
         }

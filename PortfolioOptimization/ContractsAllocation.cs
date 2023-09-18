@@ -53,7 +53,19 @@ public class ContractsAllocation
 
         return result;
     }
-    
+
+    public double GetLastAllocation(string strategyName)
+    {
+        double result = 0;
+        lock (_contractAllocationsDictionary)
+        {
+            if (!_contractAllocationsDictionary.ContainsKey(strategyName))
+                throw new MyException("Strategy " + strategyName + " was not found in the allocation table.");
+            result = _contractAllocationsDictionary[strategyName].Last().NumberOfContracts;
+        }
+
+        return result;
+    }
     public double GetAllocation(DateTime processedDate, string strategyName)
     {
         double result = -1;

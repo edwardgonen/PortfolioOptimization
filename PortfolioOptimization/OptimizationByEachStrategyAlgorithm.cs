@@ -2,7 +2,7 @@ namespace PortfolioOptimization;
 
 public class OptimizationByEachStrategyAlgorithm : IOptimizationAlgorithm
 {
-    private readonly int[] _result;
+    private readonly double[] _result;
     private readonly double _bestFitness = 1;
     public OptimizationByEachStrategyAlgorithm(int numberOfStrategies, DataHolder dataHolder, int minValue, int maxValue, OptimizerContracts.FitnessAlgorithm fitnessAlgorithm)
     {
@@ -43,7 +43,7 @@ public class OptimizationByEachStrategyAlgorithm : IOptimizationAlgorithm
 
     }
 
-    public int[] BestChromosome()
+    public double[] BestChromosome()
     {
         return _result;
     }
@@ -53,9 +53,9 @@ public class OptimizationByEachStrategyAlgorithm : IOptimizationAlgorithm
         return _bestFitness;
     }
 
-    private int[] GetAllocationByLinearity(int numberOfStrategies, DataHolder dataHolder, int minNumOfContracts, int maxNumOfContracts)
+    private double[] GetAllocationByLinearity(int numberOfStrategies, DataHolder dataHolder, int minNumOfContracts, int maxNumOfContracts)
     {
-        var result = new int[numberOfStrategies];
+        var result = new double[numberOfStrategies];
         var pnlPerStrategy = new double[numberOfStrategies, dataHolder.InitialData.Count];
         //calculate contracts allocations
 
@@ -92,9 +92,9 @@ public class OptimizationByEachStrategyAlgorithm : IOptimizationAlgorithm
 
         return result;
     }
-    private int[] GetAllocationBySharpe(int numberOfStrategies, DataHolder dataHolder, int minNumOfContracts, int maxNumOfContracts)
+    private double[] GetAllocationBySharpe(int numberOfStrategies, DataHolder dataHolder, int minNumOfContracts, int maxNumOfContracts)
     {
-        var result = new int[numberOfStrategies];
+        var result = new double[numberOfStrategies];
         var pnlPerStrategy = new double[numberOfStrategies, dataHolder.InitialData.Count];
         //calculate contracts allocations
         double maxSharpe = double.MinValue;        
@@ -137,10 +137,10 @@ public class OptimizationByEachStrategyAlgorithm : IOptimizationAlgorithm
         return result;
     }
 
-    private int[] GetAllocationByMaxProfit(int numberOfStrategies, DataHolder dataHolder, int minNumOfContracts, int maxNumOfContracts)
+    private double[] GetAllocationByMaxProfit(int numberOfStrategies, DataHolder dataHolder, int minNumOfContracts, int maxNumOfContracts)
     {
         
-        var result = new int[numberOfStrategies];
+        var result = new double[numberOfStrategies];
         var pnlPerStrategy = new double[numberOfStrategies, dataHolder.InitialData.Count];
         //calculate contracts allocations
         double maxProfit = double.MinValue;        
@@ -166,10 +166,10 @@ public class OptimizationByEachStrategyAlgorithm : IOptimizationAlgorithm
         return result;
     }
 
-    private int[] GetAllocationConstantNumber(int numberOfStrategies,
+    private double[] GetAllocationConstantNumber(int numberOfStrategies,
         int maxNumOfContracts)
     {
-        var result = new int[numberOfStrategies];
+        var result = new double[numberOfStrategies];
         for (int strategyNumber = 0; strategyNumber < numberOfStrategies; strategyNumber++)
         {
             result[strategyNumber] = maxNumOfContracts;
@@ -177,9 +177,9 @@ public class OptimizationByEachStrategyAlgorithm : IOptimizationAlgorithm
 
         return result;
     }
-    private int[] GetAllocationBySortino(int numberOfStrategies, DataHolder dataHolder, int minNumOfContracts, int maxNumOfContracts)
+    private double[] GetAllocationBySortino(int numberOfStrategies, DataHolder dataHolder, int minNumOfContracts, int maxNumOfContracts)
     {
-        var result = new int[numberOfStrategies];
+        var result = new double[numberOfStrategies];
         var pnlPerStrategy = new double[numberOfStrategies, dataHolder.InitialData.Count];
         //calculate contracts allocations
         double maxSortino = double.MinValue;        
@@ -206,7 +206,7 @@ public class OptimizationByEachStrategyAlgorithm : IOptimizationAlgorithm
         return result;
     }
 
-    private int[] GetAllocationByProfitByDrawDown()
+    private double[] GetAllocationByProfitByDrawDown()
     {
         throw new NotImplementedException("Profit by Drawdown algorithm is not yet implemented per strategy");
     }

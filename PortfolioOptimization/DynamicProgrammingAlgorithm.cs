@@ -3,7 +3,7 @@ namespace PortfolioOptimization;
 public class DynamicProgrammingAlgorithm : IOptimizationAlgorithm
 {
     private double _bestFitnessValue;
-    private int[] _finalChromosome;
+    private double[] _finalChromosome;
     
     private readonly int _minValue;
     private readonly int _maxValue;
@@ -21,7 +21,7 @@ public class DynamicProgrammingAlgorithm : IOptimizationAlgorithm
         _maxValue = maxValue;
         _numOfValuesFromMinToMax = _maxValue - _minValue + 1;
         _initialDataHolder = dataHolder;
-        _finalChromosome = new int[numberOfStrategies];
+        _finalChromosome = new double[numberOfStrategies];
         _fitnessAlgorithm = fitnessAlgorithm;
         _numOfStrategies = numberOfStrategies;
         
@@ -58,7 +58,7 @@ public class DynamicProgrammingAlgorithm : IOptimizationAlgorithm
             for (int j = 1; j <= _numOfValuesFromMinToMax; j++)
             {
                 // Calculate the fitness score based on your proprietary function.
-                int[] setOfValues = new int[_numOfStrategies];
+                double[] setOfValues = new double[_numOfStrategies];
                 for (int k = 0; k < _numOfStrategies; k++)
                 {
                     setOfValues[k] = _allCombinationsArray[i - 1][k];
@@ -80,13 +80,13 @@ public class DynamicProgrammingAlgorithm : IOptimizationAlgorithm
         List<int>[] selectedElements = BacktrackSelectedElements(dp, _allCombinationsArray);
 
         // Extract the best combination of values into a single list of 28 integers.
-        List<int> bestCombination = EnsureAllArraysContributed(selectedElements, _allCombinationsArray);
+        List<double> bestCombination = EnsureAllArraysContributed(selectedElements, _allCombinationsArray);
         
         Console.WriteLine(string.Join(", ", bestCombination));
         _finalChromosome = bestCombination.ToArray();
     }
 
-    public int[] BestChromosome()
+    public double[] BestChromosome()
     {
         return _finalChromosome;
     }
@@ -98,7 +98,7 @@ public class DynamicProgrammingAlgorithm : IOptimizationAlgorithm
     
     
 
-    private double CalculateFitness(int[] chromosome)
+    private double CalculateFitness(double[] chromosome)
     {
         double evaluationValue = Sharpe.CalculateSharpeForOnePermutation(chromosome, _initialDataHolder);
         //double evaluationValue = Linearity.CalculateLinearityForOnePermutation(_targetArray, _initialDataHolder);
@@ -155,9 +155,9 @@ public class DynamicProgrammingAlgorithm : IOptimizationAlgorithm
         return selectedElements;
     }
 
-    static List<int> EnsureAllArraysContributed(List<int>[] selectedElements, int[][] arrays)
+    static List<double> EnsureAllArraysContributed(List<int>[] selectedElements, int[][] arrays)
     {
-        List<int> bestCombination = new List<int>();
+        List<double> bestCombination = new List<double>();
 
         for (int i = 0; i < arrays.Length; i++)
         {

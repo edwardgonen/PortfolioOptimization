@@ -18,9 +18,9 @@ public class RandomAlgorithm : IOptimizationAlgorithm
     {
     }
 
-    public int[] BestChromosome()
+    public double[] BestChromosome()
     {
-        int[] bestChromosome = new int [_numberOfStrategies];
+        double[] bestChromosome = new double [_numberOfStrategies];
         for (var i = 0; i < bestChromosome.Length; i++)
         {
             bestChromosome[i] = _random.Next(_minValue, _maxValue);

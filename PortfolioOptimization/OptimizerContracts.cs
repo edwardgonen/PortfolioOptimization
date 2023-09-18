@@ -10,7 +10,46 @@ public class OptimizerContracts
         _algorithmType = algorithmType;
     }
 
-    public void OptimizeAndUpdate(DataHolder currentData, ContractsAllocation contractsAllocation, int contractsRangeStart, int contractsRangeEnd)
+    public double CalculateSelectedFitnessOutSample(DataHolder currentDataOutSample, ContractsAllocation contractsAllocation)
+    {
+        double evaluationValue;
+        //calculate linearity on out sample
+        double[] allocationArray = new double[currentDataOutSample.StrategyList.Count];
+        for (int i = 0; i < currentDataOutSample.StrategyList.Count; i++)
+        {
+            allocationArray[i] = contractsAllocation.GetLastAllocation(currentDataOutSample.StrategyList[i]);
+        }
+
+        switch (_fitnessAlgorithm)
+        {
+            case OptimizerContracts.FitnessAlgorithm.Linearity:
+                evaluationValue = LinearInterpolation.CalculateRSquaredForOnePermutation(allocationArray, currentDataOutSample);
+                break;
+            case OptimizerContracts.FitnessAlgorithm.ProfitByDrawdown:
+                evaluationValue = Profit.CalculateProfitForOnePermutation(allocationArray, currentDataOutSample);
+                evaluationValue /= DrawDown.CalculateMaxDrawdownForOnePermutation(allocationArray, currentDataOutSample);
+                break;
+            case OptimizerContracts.FitnessAlgorithm.SharpeOnEma:
+                evaluationValue = SharpeOnEma.CalculateSharpeOnEmaForOnePermutation(allocationArray, currentDataOutSample);
+                break;
+            case OptimizerContracts.FitnessAlgorithm.Sortino:
+                evaluationValue = Sortino.CalculateSortinoForOnePermutation(allocationArray, currentDataOutSample);
+                break;
+            case OptimizerContracts.FitnessAlgorithm.MaxProfit:
+                evaluationValue = MaxProfit.CalculateAccumulatedProfit(allocationArray, currentDataOutSample);
+                break;
+            case OptimizerContracts.FitnessAlgorithm.Correlation:
+                evaluationValue = Sharpe.CalculateSharpeForOnePermutation(allocationArray, currentDataOutSample);
+                break;
+            case OptimizerContracts.FitnessAlgorithm.Sharpe:
+            default:
+                evaluationValue = Sharpe.CalculateSharpeForOnePermutation(allocationArray, currentDataOutSample);
+                break;
+                
+        }
+        return evaluationValue;
+    }
+    public void OptimizeAndUpdate(DataHolder currentDataInSample, ContractsAllocation contractsAllocation, int contractsRangeStart, int contractsRangeEnd)
     {
         //optimize
 
@@ -19,19 +58,19 @@ public class OptimizerContracts
         switch (_algorithmType)
         {
             case GeneticAlgorithmType.GeneticSharp:
-                gsa = new OptimizationSharpAlgorithm(currentData.StrategyList.Count, currentData, contractsRangeStart, contractsRangeEnd, _fitnessAlgorithm);
+                gsa = new OptimizationSharpAlgorithm(currentDataInSample.StrategyList.Count, currentDataInSample, contractsRangeStart, contractsRangeEnd, _fitnessAlgorithm);
                 break;
             case GeneticAlgorithmType.Random:
-                gsa = new RandomAlgorithm(currentData.StrategyList.Count, contractsRangeStart, contractsRangeEnd);
+                gsa = new RandomAlgorithm(currentDataInSample.StrategyList.Count, contractsRangeStart, contractsRangeEnd);
                 break;
             case GeneticAlgorithmType.GradientDescent:
-                gsa = new MyGradientDescentOptimizationAlgorithm(currentData.StrategyList.Count, currentData, contractsRangeStart, contractsRangeEnd, _fitnessAlgorithm);
+                gsa = new MyGradientDescentOptimizationAlgorithm(currentDataInSample.StrategyList.Count, currentDataInSample, contractsRangeStart, contractsRangeEnd, _fitnessAlgorithm);
                 break;
             case GeneticAlgorithmType.ByStrategy:
-                gsa = new OptimizationByEachStrategyAlgorithm(currentData.StrategyList.Count, currentData, contractsRangeStart, contractsRangeEnd, _fitnessAlgorithm);
+                gsa = new OptimizationByEachStrategyAlgorithm(currentDataInSample.StrategyList.Count, currentDataInSample, contractsRangeStart, contractsRangeEnd, _fitnessAlgorithm);
                 break;
             case GeneticAlgorithmType.DynamicProgramming:
-                gsa = new DynamicProgrammingAlgorithm(currentData.StrategyList.Count, currentData, contractsRangeStart, contractsRangeEnd, _fitnessAlgorithm);
+                gsa = new DynamicProgrammingAlgorithm(currentDataInSample.StrategyList.Count, currentDataInSample, contractsRangeStart, contractsRangeEnd, _fitnessAlgorithm);
                 break;
             default:
                 throw new MyException("Algorithm not selected");
@@ -41,13 +80,13 @@ public class OptimizerContracts
         //store results
         var bestChromosome = gsa.BestChromosome();
         var bestFitness = gsa.BestFitness();
-        Logger.Log("Final Solution for " + currentData.InitialData.First().Date.ToShortDateString() + " - " + currentData.InitialData.Last().Date.ToShortDateString());
+        Logger.Log("Final Solution for " + currentDataInSample.InitialData.First().Date.ToShortDateString() + " - " + currentDataInSample.InitialData.Last().Date.ToShortDateString());
         Logger.Log(string.Join(", ", bestChromosome));
         Logger.Log("Best fitness value is " + bestFitness);
         var j = 0;
-        foreach (var strategyName in currentData.StrategyList)
+        foreach (var strategyName in currentDataInSample.StrategyList)
         {
-            contractsAllocation.AddAllocation(currentData.InitialData.Last().Date.AddDays(1), strategyName, bestChromosome[j++]);
+            contractsAllocation.AddAllocation(currentDataInSample.InitialData.Last().Date.AddDays(1), strategyName, bestChromosome[j++]);
         }
     }
 

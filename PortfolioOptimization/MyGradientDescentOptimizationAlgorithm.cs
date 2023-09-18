@@ -3,7 +3,7 @@ namespace PortfolioOptimization;
 public class MyGradientDescentOptimizationAlgorithm : IOptimizationAlgorithm
 {
     private double _bestFitnessValue;
-    private int[] _finalSolution;
+    private double[] _finalSolution;
     
     
     private static readonly Random RandomGenerator = new Random();
@@ -24,12 +24,12 @@ public class MyGradientDescentOptimizationAlgorithm : IOptimizationAlgorithm
         _minValue = minValue;
         _maxValue = maxValue;
         _initialDataHolder = dataHolder;
-        _finalSolution = new int[_solutionArrayLength];
+        _finalSolution = new double[_solutionArrayLength];
         _fitnessAlgorithm = fitnessAlgorithm;
     }
     public void Start()
     {
-        int[] array = InitializeArray();
+        double[] array = InitializeArray();
 
         for (int iteration = 0; iteration < MaxIterations; iteration++)
         {
@@ -40,7 +40,7 @@ public class MyGradientDescentOptimizationAlgorithm : IOptimizationAlgorithm
         _finalSolution = array;
     }
 
-    public int[] BestChromosome()
+    public double[] BestChromosome()
     {
         return _finalSolution;
     }
@@ -50,9 +50,9 @@ public class MyGradientDescentOptimizationAlgorithm : IOptimizationAlgorithm
         return _bestFitnessValue;
     }
     
-    private int[] InitializeArray()
+    private double[] InitializeArray()
     {
-        int[] array = new int[_solutionArrayLength];
+        double[] array = new double[_solutionArrayLength];
 
         for (int i = 0; i < _solutionArrayLength; i++)
         {
@@ -61,13 +61,13 @@ public class MyGradientDescentOptimizationAlgorithm : IOptimizationAlgorithm
 
         return array;
     }
-    private int[] ComputeGradient(int[] array, Func<int[], double> fittingFunction)
+    private int[] ComputeGradient(double[] array, Func<double[], double> fittingFunction)
     {
         int[] gradient = new int[_solutionArrayLength];
 
         for (int i = 0; i < _solutionArrayLength; i++)
         {
-            int[] modifiedArray = (int[])array.Clone();
+            double[] modifiedArray = (double[])array.Clone();
             modifiedArray[i] += 1;
 
             double currentValue = fittingFunction(array);
@@ -78,14 +78,14 @@ public class MyGradientDescentOptimizationAlgorithm : IOptimizationAlgorithm
         return gradient;
     }
 
-    private void UpdateArray(int[] array, int[] gradient)
+    private void UpdateArray(double[] array, int[] gradient)
     {
         for (int i = 0; i < _solutionArrayLength; i++)
         {
             array[i] = Math.Clamp(array[i] + (int)(LearningRate * gradient[i]), _minValue, _maxValue);
         }
     }
-    private double CalculateFitness(int[] chromosome)
+    private double CalculateFitness(double[] chromosome)
     {
         double evaluationValue;
         switch (_fitnessAlgorithm)

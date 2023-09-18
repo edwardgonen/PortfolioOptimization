@@ -209,6 +209,7 @@ Logger.Log("Loaded " + strategyList.Count + " strategies and " + dataHolder.Init
 DateTime firstAvailableDate = dataHolder.InitialData[0].Date;
 DateTime lastAvailableDate = dataHolder.InitialData.Last().Date;
 DateTime endDateOfInSample = firstAvailableDate.AddDays(parameters.InSampleDays);
+
 Logger.Log("First available date is " + firstAvailableDate + ". Last available date is " + lastAvailableDate);
 if (endDateOfInSample >= lastAvailableDate)
 {
@@ -242,25 +243,41 @@ if (!Utilities.GetNextDayOfWeek(endDateOfInSample.AddDays(-parameters.InSampleDa
     throw new MyException("Could not find next Sunday after " + endDateOfInSample.AddDays(-parameters.InSampleDays));
 }
 
+//Also calculate out sample Range
+
+//here the end date of out sample is the last Friday
+//1.2 calculate first day of insample
+//it is prev monday before (end - length of out sample)
+Utilities.GetNextDayOfWeek(endDateOfInSample, lastAvailableDate, DayOfWeek.Sunday, out var startDateOfOutSample);
+if (!Utilities.GetPreviousDayOfWeek(startDateOfOutSample.AddDays(parameters.OutSampleDays), firstAvailableDate, DayOfWeek.Friday, out var endDateOfOutSample))
+{
+    throw new MyException("Could not find last out sample Friday before " + lastAvailableDate);
+}
+
 do
 {
     Logger.Log("Working on in sample from " + startDateOfInSample.ToShortDateString() + " to " + endDateOfInSample.ToShortDateString());
-    DataHolder currentData = dataHolder.GetRangeOfData(startDateOfInSample, endDateOfInSample);
+    DataHolder currentDataInSample = dataHolder.GetRangeOfData(startDateOfInSample, endDateOfInSample);
+    DataHolder currentDataOutSample = dataHolder.GetRangeOfData(startDateOfOutSample, endDateOfOutSample);
     var tokenSource = new CancellationTokenSource();
     var token = tokenSource.Token;
 
     if (!parameters.BParallel)
     {
-        optimizer.OptimizeAndUpdate(currentData, contractsAllocation, parameters.ContractsRangeStart,
+        optimizer.OptimizeAndUpdate(currentDataInSample, contractsAllocation, parameters.ContractsRangeStart,
             parameters.ContractsRangeEnd);
+        var fitnessOutSample = optimizer.CalculateSelectedFitnessOutSample(currentDataOutSample, contractsAllocation);
+        Logger.Log("Out of Sample fitness " + fitnessOutSample);
     }
     else
     {
         var allocation = contractsAllocation;
         optimizationTasks.Add(factory.StartNew(() =>
             {
-                optimizer.OptimizeAndUpdate(currentData, allocation, parameters.ContractsRangeStart,
+                optimizer.OptimizeAndUpdate(currentDataInSample, allocation, parameters.ContractsRangeStart,
                     parameters.ContractsRangeEnd);
+                var fitnessOutSample = optimizer.CalculateSelectedFitnessOutSample(currentDataOutSample, contractsAllocation);
+                Logger.Log("Out of Sample fitness " + fitnessOutSample);
             }
             , token));
     }
@@ -283,7 +300,16 @@ do
     {
         break;
     }
-    
+    //Also calculate out sample Range
+
+    //here the end date of out sample is the last Friday
+    //1.2 calculate first day of insample
+    //it is prev monday before (end - length of out sample)
+    Utilities.GetNextDayOfWeek(endDateOfInSample, lastAvailableDate, DayOfWeek.Sunday, out startDateOfOutSample);
+    if (!Utilities.GetPreviousDayOfWeek(startDateOfOutSample.AddDays(parameters.OutSampleDays), firstAvailableDate, DayOfWeek.Friday, out endDateOfOutSample))
+    {
+        throw new MyException("Could not find last out sample Friday before " + lastAvailableDate);
+    }
 
 } while (true);
 
