@@ -157,6 +157,8 @@ switch (args.Length)
             fitnessAlgorithm = OptimizerContracts.FitnessAlgorithm.ProfitByDrawdown;
         else if (args[6].ToUpper().StartsWith("LI"))
             fitnessAlgorithm = OptimizerContracts.FitnessAlgorithm.Linearity;
+        else if (args[6].ToUpper().StartsWith("RS"))
+            fitnessAlgorithm = OptimizerContracts.FitnessAlgorithm.RSquared;
         else if (args[6].ToUpper().StartsWith("SE"))
             fitnessAlgorithm = OptimizerContracts.FitnessAlgorithm.SharpeOnEma;
         else if (args[6].ToUpper().StartsWith("SO"))

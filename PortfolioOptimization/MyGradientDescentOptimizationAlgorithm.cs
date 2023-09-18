@@ -47,7 +47,7 @@ public class MyGradientDescentOptimizationAlgorithm : IOptimizationAlgorithm
 
     public double BestFitness()
     {
-        return _bestFitnessValue;
+        return 1/_bestFitnessValue;
     }
     
     private double[] InitializeArray()
@@ -92,6 +92,9 @@ public class MyGradientDescentOptimizationAlgorithm : IOptimizationAlgorithm
         {
             case OptimizerContracts.FitnessAlgorithm.Linearity:
                 evaluationValue = Linearity.CalculateLinearityForOnePermutation(chromosome, _initialDataHolder);
+                break;
+            case OptimizerContracts.FitnessAlgorithm.RSquared:
+                evaluationValue = LinearInterpolation.CalculateRSquaredForOnePermutation(chromosome, _initialDataHolder);
                 break;
             case OptimizerContracts.FitnessAlgorithm.ProfitByDrawdown:
                 evaluationValue = Profit.CalculateProfitForOnePermutation(chromosome, _initialDataHolder);

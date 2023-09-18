@@ -175,6 +175,9 @@ public class OptimizationSharpAlgorithm : IOptimizationAlgorithm
         switch (_fitnessAlgorithm)
         {
             case OptimizerContracts.FitnessAlgorithm.Linearity:
+                evaluationValue = Linearity.CalculateLinearityForOnePermutation(targetArray, _dataHolder);
+                break;
+            case OptimizerContracts.FitnessAlgorithm.RSquared:
                 evaluationValue = LinearInterpolation.CalculateRSquaredForOnePermutation(targetArray, _dataHolder);
                 break;
             case OptimizerContracts.FitnessAlgorithm.ProfitByDrawdown:

@@ -23,6 +23,9 @@ public class OptimizerContracts
         switch (_fitnessAlgorithm)
         {
             case OptimizerContracts.FitnessAlgorithm.Linearity:
+                evaluationValue = Linearity.CalculateLinearityForOnePermutation(allocationArray, currentDataOutSample);
+                break;            
+            case OptimizerContracts.FitnessAlgorithm.RSquared:
                 evaluationValue = LinearInterpolation.CalculateRSquaredForOnePermutation(allocationArray, currentDataOutSample);
                 break;
             case OptimizerContracts.FitnessAlgorithm.ProfitByDrawdown:
@@ -105,6 +108,7 @@ public class OptimizerContracts
         Sortino,
         MaxProfit,
         ConstNumberOfContracts,
-        Correlation
+        Correlation,
+        RSquared
     }
 }
