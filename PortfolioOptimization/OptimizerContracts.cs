@@ -69,9 +69,6 @@ public class OptimizerContracts
             case GeneticAlgorithmType.ByStrategy:
                 gsa = new OptimizationByEachStrategyAlgorithm(currentDataInSample.StrategyList.Count, currentDataInSample, contractsRangeStart, contractsRangeEnd, _fitnessAlgorithm);
                 break;
-            case GeneticAlgorithmType.DynamicProgramming:
-                gsa = new DynamicProgrammingAlgorithm(currentDataInSample.StrategyList.Count, currentDataInSample, contractsRangeStart, contractsRangeEnd, _fitnessAlgorithm);
-                break;
             default:
                 throw new MyException("Algorithm not selected");
         }

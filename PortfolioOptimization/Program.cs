@@ -267,17 +267,19 @@ do
         optimizer.OptimizeAndUpdate(currentDataInSample, contractsAllocation, parameters.ContractsRangeStart,
             parameters.ContractsRangeEnd);
         var fitnessOutSample = optimizer.CalculateSelectedFitnessOutSample(currentDataOutSample, contractsAllocation);
-        Logger.Log("Out of Sample fitness " + fitnessOutSample);
+        Logger.Log("Out of Sample fitness " + fitnessOutSample + " for " + startDateOfOutSample.ToShortDateString() + "-" + endDateOfOutSample.ToShortDateString());
     }
     else
     {
         var allocation = contractsAllocation;
+        var tmpStartOutOfSample = startDateOfOutSample;
+        var tmpEndOutOfSample = endDateOfOutSample;
         optimizationTasks.Add(factory.StartNew(() =>
             {
                 optimizer.OptimizeAndUpdate(currentDataInSample, allocation, parameters.ContractsRangeStart,
                     parameters.ContractsRangeEnd);
-                var fitnessOutSample = optimizer.CalculateSelectedFitnessOutSample(currentDataOutSample, contractsAllocation);
-                Logger.Log("Out of Sample fitness " + fitnessOutSample);
+                var fitnessOutSample = optimizer.CalculateSelectedFitnessOutSample(currentDataOutSample, allocation);
+                Logger.Log("Out of Sample fitness " + fitnessOutSample + " for " + tmpStartOutOfSample.ToShortDateString() + "-" + tmpEndOutOfSample.ToShortDateString());
             }
             , token));
     }
