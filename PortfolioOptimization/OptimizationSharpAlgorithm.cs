@@ -111,7 +111,7 @@ public class OptimizationSharpAlgorithm : IOptimizationAlgorithm
         
         int populationSize = 1000;
         var population = new Population(populationSize, populationSize, 
-            new MyChromosome(_dataHolder.StrategyList.Count, minValue, maxValue));
+            new MyChromosome(_dataHolder.StrategyList.Count, _minValue, _maxValue));
         var selection = new EliteSelection(); //our
 
         
