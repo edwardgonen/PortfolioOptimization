@@ -10,17 +10,14 @@ public class OptimizationSharpAlgorithm : IOptimizationAlgorithm
     private readonly DataHolder _originalDataHolder;
     private readonly int _maxValue;
     private readonly int _minValue;
-    private List<HashSet<string>> _correlatedStrategies;
 
     public OptimizationSharpAlgorithm(int numberOfStrategies, DataHolder dataHolder, int minValue, int maxValue, OptimizerContracts.FitnessAlgorithm fitnessAlgorithm)
     {
-
         _fitnessAlgorithm = fitnessAlgorithm;
         _dataHolder = dataHolder;
         _originalDataHolder = dataHolder;
         _maxValue = maxValue;
         _minValue = minValue;
-        
 
 
         if (_fitnessAlgorithm == OptimizerContracts.FitnessAlgorithm.Correlation)
@@ -44,13 +41,13 @@ public class OptimizationSharpAlgorithm : IOptimizationAlgorithm
                 }
             }
             //2. given correlation threshold distribute all strategies by correlated sets
-            _correlatedStrategies = new List<HashSet<string>>();
+            List<HashSet<string>> correlatedStrategies = new List<HashSet<string>>();
             foreach (var strategyName in allStrategies)
             {                    
                 //add new set of correlated strategies
-                _correlatedStrategies.Add(new HashSet<string>());
+                correlatedStrategies.Add(new HashSet<string>());
                 //and add ourself to it
-                _correlatedStrategies.Last().Add(strategyName);
+                correlatedStrategies.Last().Add(strategyName);
                 //remove from all
                 allStrategies.RemoveWhere(s => s == strategyName);
                 var xProfits = 
@@ -76,14 +73,14 @@ public class OptimizationSharpAlgorithm : IOptimizationAlgorithm
                     if (correlation >= correlationThreshold)
                     {
                         //add the strategy to our set and remove from allStrategies
-                        _correlatedStrategies.Last().Add(correlatedStrategyName);
+                        correlatedStrategies.Last().Add(correlatedStrategyName);
                         allStrategies.RemoveWhere(s => s == correlatedStrategyName);
                     }
                 }
             }
             DataHolder newDataHolder = new DataHolder();
             //3. select from each set one strategy (just for beginning)
-            foreach (var set in _correlatedStrategies)
+            foreach (var set in correlatedStrategies)
             {
                 //TODO should we take just first or select something?
                 string strategyName = set.First();
