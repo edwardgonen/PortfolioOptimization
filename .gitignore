@@ -445,3 +445,5 @@ $RECYCLE.BIN/
 !.vscode/launch.json
 !.vscode/extensions.json
 *.csv
+data/AccumulatedProfit-Const.xls
+data/AccumulatedProfit10-5RS-Versus-Const.xlsm
