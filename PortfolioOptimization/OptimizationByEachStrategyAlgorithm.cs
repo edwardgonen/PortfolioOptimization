@@ -2,6 +2,7 @@ namespace PortfolioOptimization;
 
 public class OptimizationByEachStrategyAlgorithm : IOptimizationAlgorithm
 {
+    private const double SharpeThreshold = 0;
     private readonly double[] _result;
     private readonly double _bestFitness = 1;
     public OptimizationByEachStrategyAlgorithm(int numberOfStrategies, DataHolder dataHolder, int minValue, int maxValue, OptimizerContracts.FitnessAlgorithm fitnessAlgorithm)
@@ -127,7 +128,7 @@ public class OptimizationByEachStrategyAlgorithm : IOptimizationAlgorithm
                minNumOfContracts);
                }
             */
-            if (sharpePerStrategy[strategyNumber] <= 0) result[strategyNumber] = minNumOfContracts;
+            if (sharpePerStrategy[strategyNumber] <= SharpeThreshold) result[strategyNumber] = minNumOfContracts;
             else
             {
                 result[strategyNumber] = maxNumOfContracts;
